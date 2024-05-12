@@ -86,6 +86,43 @@
                         <i class="iconfont">&#xe696;</i>
                         <cite >智能问答</cite></a>
                     </li>
+
+                    <!-- 隐藏HTML内容 -->
+                    <li id="pe1" style="display: none;">
+                        <a onclick="xadmin.add_tab('水产购买中心','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >水产销售中心</cite></a>
+                    </li>
+                    <li id="pe2" style="display: none;">
+                        <a onclick="xadmin.add_tab('批发联系','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >批发联系</cite></a>
+                    </li>
+                    <li id="pe3" style="display: none;">
+                        <a onclick="xadmin.add_tab('订单查询','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >订单查询</cite></a>
+                    </li>
+
+                    <!-- 隐藏HTML内容 -->
+                    <li id="pe4" style="display: none;">
+                        <a onclick="xadmin.add_tab('渔场设施调整','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >渔场设施调整</cite></a>
+                    </li>
+                    <!-- 隐藏HTML内容 -->
+                    <li id="pe5" style="display: none;">
+                        <a onclick="xadmin.add_tab('渔场报警处理','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >渔场报警处理</cite></a>
+                    </li>
+                    <!-- 隐藏HTML内容 -->
+                    <li id="pe6" style="display: none;">
+                        <a onclick="xadmin.add_tab('水产售卖平台','/system/welcome.html',true)">
+                        <i class="iconfont">&#xe696;</i>
+                        <cite >水产售卖平台</cite></a>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -147,6 +184,25 @@
                 var layer = layui.layer;
                 layer.alert('权限不足，无法访问后台管理页面', {icon: 2});
             });
+        }
+
+    });
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取用户权限
+        var permission = parseInt('{{ permission }}'); // 使用Django模板语法获取permission属性的值
+        
+        // 根据权限决定是否显示智能问答栏目
+        if (permission ==1 ) {
+            document.getElementById('pe1').style.display = 'block';
+            document.getElementById('pe2').style.display = 'block';
+            document.getElementById('pe3').style.display = 'block';
+        }
+        if (permission ==2 ) {
+            document.getElementById('pe4').style.display = 'block';
+            document.getElementById('pe5').style.display = 'block';
+            document.getElementById('pe6').style.display = 'block';
         }
     });
 </script>
