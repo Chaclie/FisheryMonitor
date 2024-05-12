@@ -1,4 +1,3 @@
-
 <html>
 <head>
     <meta charset="utf-8">
@@ -6,8 +5,8 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
-    <link rel="stylesheet" href="../css/public.css" media="all">
+    <link rel="stylesheet" href="../static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../static/css/public.css" media="all">
 </head>
 <body>
 <div class="layuimini-container">
@@ -37,12 +36,6 @@
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户职业</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="classify" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
                             <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
                         </div>
                     </div>
@@ -66,40 +59,62 @@
 
     </div>
 </div>
-<script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'table'], function () {
         var $ = layui.jquery,
             form = layui.form,
             table = layui.table;
 
-        table.render({
-            elem: '#currentTableId',
-            url: '../api/table.json',
-            toolbar: '#toolbarDemo',
-            defaultToolbar: ['filter', 'exports', 'print', {
-                title: '提示',
-                layEvent: 'LAYTABLE_TIPS',
-                icon: 'layui-icon-tips'
-            }],
-            cols: [[
-                {type: "checkbox", width: 50},
-                {field: 'id', width: 80, title: 'ID', sort: true},
-                {field: 'username', width: 80, title: '用户名'},
-                {field: 'sex', width: 80, title: '性别', sort: true},
-                {field: 'city', width: 80, title: '城市'},
-                {field: 'sign', title: '签名', minWidth: 150},
-                {field: 'experience', width: 80, title: '积分', sort: true},
-                {field: 'score', width: 80, title: '评分', sort: true},
-                {field: 'classify', width: 80, title: '职业'},
-                {field: 'wealth', width: 135, title: '财富', sort: true},
-                {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
-            ]],
-            limits: [10, 15, 20, 25, 50, 100],
-            limit: 15,
-            page: true,
-            skin: 'line'
-        });
+            table.render({
+                elem: '#currentTableId',
+                url: 'get_data',
+                toolbar: '#toolbarDemo',
+                defaultToolbar: ['filter', 'exports', 'print', {
+                    title: '提示',
+                    layEvent: 'LAYTABLE_TIPS',
+                    icon: 'layui-icon-tips'
+                }],
+                cols: [[
+                    {type: "checkbox", width: 50},
+                    {field: 'id', width: 80, title: 'ID', sort: true},
+                    {field: 'username', width: 80, title: '用户名'},
+                    {field: 'password', width: 135, title: '密码', sort: true},
+                    {field: 'permission', width: 135, title: '权限', sort: true},
+                    {field: 'email', width: 200, title: '邮箱', sort: true},
+                    {field: 'identity', width: 150, title: '身份'}, // 新增的身份列
+                    {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+                ]],
+                limits: [10, 15, 20, 25, 50, 100],
+                limit: 15,
+                page: true,
+                skin: 'line',
+                parseData: function(res){ // 对返回的数据进行处理
+                    var data = res.data;
+                    // 遍历数据，设置身份信息
+                    layui.each(data, function(index, item){
+                        var permission = item.permission;
+                        var identity;
+                        // 根据权限值设置身份信息
+                        if (permission === 4) {
+                            identity = '高级管理员';
+                        } else if (permission === 3) {
+                            identity = '管理员';
+                        } else if (permission === 2) {
+                            identity = '养殖户';
+                        } else if (permission === 1) {
+                            identity = '批发商';
+                        } else if (permission === 0) {
+                            identity = '普通用户';
+                        }
+                        item.identity = identity; // 将身份信息添加到数据中
+                    });
+                    return {
+                        code: res.code,
+                        data: data
+                    };
+                }
+            });
 
         // 监听搜索操作
         form.on('submit(data-search-btn)', function (data) {
@@ -133,7 +148,7 @@
                     maxmin:true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '../templates/table/add.html',
+                    content: '../page/table/add.html',
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
@@ -161,7 +176,7 @@
                     maxmin:true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '../templates/table/edit.html',
+                    content: 'edit_data?username=' + data.username
                 });
                 $(window).on("resize", function () {
                     layer.full(index);

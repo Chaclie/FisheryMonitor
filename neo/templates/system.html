@@ -26,19 +26,20 @@
         <!-- 顶部开始 -->
         <div class="container">
             <div class="logo">
-                <a href="./index.html">
-                <img src="../static/images/logo3.png" style="height: 50px;"></img>
+                <a href="#">
+                <img src="../static/images/logo3.png" style="height:40px;"></img>
+                海洋牧场
                 </a>
             </div>
             <div class="left_open">
                 <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a>
             </div>
             <div class="left_name" >
-                海洋牧场智能监测可视化系统
+                智慧渔场智能监测可视化系统
             </div>
             <ul class="layui-nav right" lay-filter="">
                 <li class="layui-nav-item">
-                    <a href="javascript:;">admin</a>
+                    <a href="javascript:;">{{username}} ({{identity}})</a>
                     <dl class="layui-nav-child">
                         <!-- 二级菜单 -->
                         <dd>
@@ -46,11 +47,12 @@
                         <dd>
                             <a onclick="xadmin.open('切换帐号','http://www.baidu.com')">切换帐号</a></dd>
                         <dd>
-                            <a href="login.html">退出</a></dd>
+                            <a href="/?status=quit">退出</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item to-index">
-                    <a href="./index.html">前台首页</a></li>
+                <li class="layui-nav-item to-index" id="backend-link">
+                    <a href="../backend/backend.html" id="backend-url">后台管理页面</a>
+                </li>
             </ul>
         </div>
         <!-- 顶部结束 -->
@@ -80,9 +82,9 @@
                         <cite >智能中心</cite></a>
                     </li>
                     <li>
-                        <a onclick="xadmin.add_tab('管理员','admincontrol.html',true)">
+                        <a onclick="xadmin.add_tab('智能问答','smart_QA.html',true)">
                         <i class="iconfont">&#xe696;</i>
-                        <cite >管理员</cite></a>
+                        <cite >智能问答</cite></a>
                     </li>
                 </ul>
             </div>
@@ -103,7 +105,7 @@
                 </div>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
-                        <iframe src='welcome.html' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+                        <iframe src='/system/welcome.html' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
                     </div>
                 </div>
                 <div id="tab_show"></div>
@@ -123,3 +125,28 @@
     </body>
 
 </html>
+
+
+<script src="../static/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    // 监听后台管理页面链接的点击事件
+    document.getElementById('backend-url').addEventListener('click', function(event) {
+        // 阻止默认行为，即禁止直接跳转链接
+        event.preventDefault();
+        
+        // 获取permission属性的值
+        var permission = parseInt('{{ permission }}'); // 使用Django模板语法获取permission属性的值
+        
+        // 如果permission大于4，则允许跳转到后台管理页面
+        if (permission >= 3) {
+            window.location.href = this.href;
+        } else {
+            // 否则，使用layui的弹窗警告
+            layui.use('layer', function() {
+                var layer = layui.layer;
+                layer.alert('权限不足，无法访问后台管理页面', {icon: 2});
+            });
+        }
+    });
+</script>

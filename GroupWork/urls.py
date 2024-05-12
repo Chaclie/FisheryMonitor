@@ -32,5 +32,16 @@ urlpatterns = [
     path('system/datacenter.html', views.Datacenter),
     path('system/AIcenter.html', views.AIcenter),
     path('system/admincontrol.html', views.AdminControl),
-    
+    path('system/forget.html',views.forget),
+    path('system/smart_QA.html', views.smart_qa),
+
+    # 注册登录
+    path('',login),
+    path('system/register.html',register_page,name ="register"),
+    path('system/', system),
+    path('backend/backend.html', backend),
+    path('backend/table.html', table),
+    path('backend/get_data', get_data),
+    path('backend/edit_data',edit_data),
+    path('backend/edit_check',edit_check),
 ]
