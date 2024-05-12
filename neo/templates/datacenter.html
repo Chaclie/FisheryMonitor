@@ -37,15 +37,14 @@
         <div class="layui-col-xs12 layui-col-md3">
 
             <div class="layui-card top-panel">
-                <div class="layui-card-header">要展示的指标名称</div>
+                <div class="layui-card-header">进程数量</div>
                 <div class="layui-card-body">
                     <div class="layui-row layui-col-space5">
                         <div class="layui-col-xs9 layui-col-md9 top-panel-number">
-                            9,054,056
+                            {{Prosess}}
                         </div>
                         <div class="layui-col-xs3 layui-col-md3 top-panel-tips">
-                            比昨天 <a style="color: #1aa094">▲0.12</a><br>
-                            比七日 <a style="color: #bd3004">▼0.06</a>
+                            比昨天 <a style="color: #1aa094">▲7</a><br>
                         </div>
                     </div>
                 </div>
@@ -55,15 +54,14 @@
         <div class="layui-col-xs12 layui-col-md3">
 
             <div class="layui-card top-panel">
-                <div class="layui-card-header">要展示的指标名称</div>
+                <div class="layui-card-header">磁盘使用</div>
                 <div class="layui-card-body">
                     <div class="layui-row layui-col-space5">
                         <div class="layui-col-xs9 layui-col-md9 top-panel-number">
-                            9,054,056
+                            {{disk_used}} T
                         </div>
                         <div class="layui-col-xs3 layui-col-md3 top-panel-tips">
-                            比昨天 <a style="color: #1aa094">▲0.12</a><br>
-                            比七日 <a style="color: #bd3004">▼0.06</a>
+                            比昨天 <a style="color: #1aa094">▲0.10</a><br>
                         </div>
                     </div>
                 </div>
@@ -73,15 +71,14 @@
         <div class="layui-col-xs12 layui-col-md3">
 
             <div class="layui-card top-panel">
-                <div class="layui-card-header">要展示的指标名称</div>
+                <div class="layui-card-header">剩余磁盘</div>
                 <div class="layui-card-body">
                     <div class="layui-row layui-col-space5">
                         <div class="layui-col-xs9 layui-col-md9 top-panel-number">
-                            9,054,056
+                            {{disk_rest}} T
                         </div>
                         <div class="layui-col-xs3 layui-col-md3 top-panel-tips">
-                            比昨天 <a style="color: #1aa094">▲0.12</a><br>
-                            比七日 <a style="color: #bd3004">▼0.06</a>
+                            比昨天 <a style="color: #1aa094">▼0.10</a><br>
                         </div>
                     </div>
                 </div>
@@ -91,15 +88,14 @@
         <div class="layui-col-xs12 layui-col-md3">
 
             <div class="layui-card top-panel">
-                <div class="layui-card-header">要展示的指标名称</div>
+                <div class="layui-card-header">平均传输时长</div>
                 <div class="layui-card-body">
                     <div class="layui-row layui-col-space5">
                         <div class="layui-col-xs9 layui-col-md9 top-panel-number">
-                            9,054,056
+                            {{transport_time}}
                         </div>
                         <div class="layui-col-xs3 layui-col-md3 top-panel-tips">
-                            比昨天 <a style="color: #1aa094">▲0.12</a><br>
-                            比七日 <a style="color: #bd3004">▼0.06</a>
+                            比昨天 <a style="color: #1aa094">▲0:32</a><br>
                         </div>
                     </div>
                 </div>
@@ -109,21 +105,15 @@
     </div>
 
     <div class="layui-row layui-col-space15">
-        <div class="layui-col-xs12 layui-col-md9">
+        <div class="layui-col-xs12 layui-col-md12">
             <div id="echarts-records" style="background-color:#ffffff;min-height:400px;padding: 10px"></div>
         </div>
-        <div class="layui-col-xs12 layui-col-md3">
-            <div id="echarts-pies" style="background-color:#ffffff;min-height:400px;padding: 10px"></div>
-        </div>
     </div>
 
 
     <div class="layui-row layui-col-space15">
-        <div class="layui-col-xs12 layui-col-md6">
+        <div class="layui-col-xs12 layui-col-md12">
             <div id="echarts-dataset" style="background-color:#ffffff;min-height:300px;padding: 10px"></div>
-        </div>
-        <div class="layui-col-xs12 layui-col-md6">
-            <div id="echarts-map" style="background-color:#ffffff;min-height:300px;padding: 10px"></div>
         </div>
     </div>
 
@@ -145,7 +135,7 @@
 
         var optionRecords = {
             title: {
-                text: '指标名称-报表图'
+                text: '数据库交互次数统计',
             },
             tooltip: {
                 trigger: 'axis',
@@ -157,7 +147,7 @@
                 }
             },
             legend: {
-                data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                data: ['数据库查询次数', '查询成功次数']
             },
             toolbox: {
                 feature: {
@@ -174,7 +164,7 @@
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                    data: ['六天前', '五天前', '四天前', '三天前', '前天', '昨天', '今天']
                 }
             ],
             yAxis: [
@@ -184,93 +174,21 @@
             ],
             series: [
                 {
-                    name: '邮件营销',
+                    name: '数据库查询次数',
                     type: 'line',
                     stack: '总量',
-                    areaStyle: {},
-                    data: [120, 132, 101, 134, 90, 230, 210]
-                },
-                {
-                    name: '联盟广告',
-                    type: 'line',
                     areaStyle: {},
                     data: [220, 182, 191, 234, 290, 330, 310]
                 },
                 {
-                    name: '视频广告',
+                    name: '查询成功次数',
                     type: 'line',
-                    stack: '总量',
                     areaStyle: {},
-                    data: [150, 232, 201, 154, 190, 330, 410]
+                    data: [120, 132, 101, 134, 90, 230, 210]
                 },
-                {
-                    name: '直接访问',
-                    type: 'line',
-                    stack: '总量',
-                    areaStyle: {},
-                    data: [320, 332, 301, 334, 390, 330, 320]
-                },
-                {
-                    name: '搜索引擎',
-                    type: 'line',
-                    stack: '总量',
-                    label: {
-                        normal: {
-                            show: true,
-                            position: 'top'
-                        }
-                    },
-                    areaStyle: {},
-                    data: [820, 932, 901, 934, 1290, 1330, 1320]
-                }
             ]
         };
         echartsRecords.setOption(optionRecords);
-
-
-        /**
-         * 玫瑰图表
-         */
-        var echartsPies = echarts.init(document.getElementById('echarts-pies'), 'walden');
-        var optionPies = {
-            title: {
-                text: '指标名称-玫瑰图',
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b} : {c} ({d}%)'
-            },
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
-            },
-            series: [
-                {
-                    name: '访问来源',
-                    type: 'pie',
-                    radius: '55%',
-                    center: ['50%', '60%'],
-                    roseType: 'radius',
-                    data: [
-                        {value: 335, name: '直接访问'},
-                        {value: 310, name: '邮件营销'},
-                        {value: 234, name: '联盟广告'},
-                        {value: 135, name: '视频广告'},
-                        {value: 368, name: '搜索引擎'}
-                    ],
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
-                }
-            ]
-        };
-        echartsPies.setOption(optionPies);
 
 
         /**
@@ -282,12 +200,10 @@
             legend: {},
             tooltip: {},
             dataset: {
-                dimensions: ['product', '2015', '2016', '2017'],
+                dimensions: ['Time', 'CPU', 'GPU', 'Memory'],
                 source: [
-                    {product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7},
-                    {product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1},
-                    {product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5},
-                    {product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1}
+
+                    {product: '今天', 'CPU': 72.4, 'GPU': 53.9, 'Memory': 39.1}
                 ]
             },
             xAxis: {type: 'category'},
@@ -304,53 +220,7 @@
         echartsDataset.setOption(optionDataset);
 
 
-        /**
-         * 中国地图
-         */
-        var echartsMap = echarts.init(document.getElementById('echarts-map'), 'walden');
 
-
-        var optionMap = {
-            legend: {},
-            tooltip: {
-                trigger: 'axis',
-                showContent: false
-            },
-            dataset: {
-                source: [
-                    ['product', '2012', '2013', '2014', '2015', '2016', '2017'],
-                    ['Matcha Latte', 41.1, 30.4, 65.1, 53.3, 83.8, 98.7],
-                    ['Milk Tea', 86.5, 92.1, 85.7, 83.1, 73.4, 55.1],
-                    ['Cheese Cocoa', 24.1, 67.2, 79.5, 86.4, 65.2, 82.5],
-                    ['Walnut Brownie', 55.2, 67.1, 69.2, 72.4, 53.9, 39.1]
-                ]
-            },
-            xAxis: {type: 'category'},
-            yAxis: {gridIndex: 0},
-            grid: {top: '55%'},
-            series: [
-                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
-                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
-                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
-                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
-                {
-                    type: 'pie',
-                    id: 'pie',
-                    radius: '30%',
-                    center: ['50%', '25%'],
-                    label: {
-                        formatter: '{b}: {@2012} ({d}%)'
-                    },
-                    encode: {
-                        itemName: 'product',
-                        value: '2012',
-                        tooltip: '2012'
-                    }
-                }
-            ]
-        };
-
-        echartsMap.setOption(optionMap);
 
 
         // echarts 窗口缩放自适应
