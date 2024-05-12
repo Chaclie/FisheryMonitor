@@ -38,4 +38,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('system/', system),
     path('system/MainInfo.html', views.MainInfo),
+    path('system/Underwater.html', views.Underwater),
+    path('system/datacenter.html', views.Datacenter),
+    path('system/AIcenter.html', views.AIcenter),
+    path('system/admincontrol.html', views.AdminControl),
+    
 ]

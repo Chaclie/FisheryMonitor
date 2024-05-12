@@ -131,3 +131,18 @@ def bot_response(request):
         # 将处理结果封装为 JSON 格式，并返回给前端
         response_data = {'bot_response': bot_response_text}
         return JsonResponse(response_data)
+
+def MainInfo(request):
+    return render(request, 'MainInfo.html')
+
+def Underwater(request):
+    return render(request, 'Underwater.html')
+
+def Datacenter(request):
+    return render(request, 'datacenter.html')
+
+def AIcenter(request):
+    return render(request, 'AIcenter.html')
+
+def AdminControl(request):
+    return render(request, 'admincontrol.html')
