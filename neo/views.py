@@ -36,7 +36,7 @@ def MainInfo(request):
         'NTU'   : [2.05, 2.04, 2.03, 2.02, 2.01, 2.00, 1.99, 1.98, 1.97, 1.96],
     }
 
-    
+
 
     return render(request, 'MainInfo.html')
 
@@ -44,7 +44,16 @@ def Underwater(request):
     return render(request, 'Underwater.html')
 
 def Datacenter(request):
-    return render(request, 'datacenter.html')
+    data = {
+        'Prosess': 999,
+        'disk_used': 1000,
+        'disk_rest': 1500,
+        'transport_time' : "02:45",
+        'CPU': 80,
+        'memory': 60,
+        'GPU': 50,
+    }
+    return render(request, 'datacenter.html',data)
 
 def AIcenter(request):
     
