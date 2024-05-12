@@ -538,6 +538,12 @@
                     }
                 ],
                 series: [
+                    {
+                        name: '鱼类1质量',
+                        type: 'line',
+                        areaStyle: {},
+                        data: [120, 132, 101, 134, 90, 230, 210]
+                    }
                 ]
             };
 
@@ -592,8 +598,10 @@
                 ]
             };
             var hist_len = 60;
+            var last_data = 0;
             for (var i = 0; i < hist_len; i++) {
-                optionRecords1.series[0].data.push(Math.floor(Math.random() * 100));
+                last_data = Math.floor(Math.random() * 100) * 0.6 + last_data * 0.4;
+                optionRecords1.series[0].data.push(last_data);
                 optionRecords1.xAxis[0].data.push(i);
             }
             echartsRecords1.setOption(optionRecords1);
