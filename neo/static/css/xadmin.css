@@ -168,7 +168,7 @@ body{
     left: 0;
     z-index: 2;
     padding-top: 10px;
-    background-color: #EEEEEE;
+    background-color: #1effea1c;
     width: 240px;
     max-width: 240px;
     overflow: auto;
@@ -291,7 +291,7 @@ body{
 .page-content .layui-tab-title{
     /*padding-top: 5px;*/
     height: 35px;
-    background: #EFEEF0 ;
+    background: #1effea1c ;
     position: relative;
     z-index: 100;
 }
