@@ -1,0 +1,264 @@
+<html class="x-admin-sm">
+
+<head>
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>知识图谱总览</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" href="../static/css/font.css">
+    <link rel="stylesheet" href="../static/css/xadmin.css">
+    <script src="../static/lib/layui/layui.js"></script>
+    <script src="../static/js/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body ">
+                        <blockquote class="layui-elem-quote">
+                            本系统的知识图谱基于neo4j图数据库和django框架生成，可以进行中医药相关的图数据库查询。总数据量大约有6000多节点和60000多边关系,这里为了兼顾可视性和渲染效率,随机选取了部分节点进行展示
+                        <p style="white-space:pre">一些tips:       1、鼠标悬浮在节点上方可以显示节点详情       2、鼠标点击节点可以打开节点详情页面       3、由于采用了力导向图，省份节点可能会出现拥挤现象</p>
+                        </blockquote>
+                        <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+                        <div id="main" style="width: 100%;height:670px;"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/extension/bmap.min.js"></script>
+    <script>
+        function hideLoadingSpinner() {
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+        $(document).ready(function () {
+            $.get('../static/nodes.json').done(function (nodes) {
+                $.get('../static/relationships.json').done(function (edges) {
+                    var myChart = echarts.init(document.getElementById('main'));
+                    var kind = ['药材', '方剂', '中成药', '症状', '省份', '药味', '药性', '功效'];
+                    var categories = [];
+                    var data = [];
+                    var links = [];
+                    var nameSet = new Set(); // 用于存储已经出现过的节点名称,去重操作
+
+                    // 初始化类别
+                    for (var i = 0; i < kind.length; i++) {
+                        categories.push({ name: kind[i] });
+                    }
+
+                    // 初始设置为-30,多生成一些药材节点
+                    var count1 = -30;
+                    var cat_curr = 0;
+                    // 处理节点数据
+                    for (var j = 0; j < nodes.length; j++) {
+                        var node = nodes[j];
+                        // 检查节点名称是否已经存在，如果存在则跳过该节点
+                        if (nameSet.has(node.name)) {
+                            continue;
+                        }
+                        // 计数，只展示前50个某种类的点，防止渲染爆炸
+                        if (node.category != cat_curr) {
+                            count1 = 0;
+                            cat_curr = node.category;
+                        }
+                        count1 = count1 + 1;
+                        if (count1 > 40) {
+                            continue;
+                        }
+                        var data_temp = node;
+                        data_temp.des = node.name;
+                        data_temp.symbolSize = 40;
+                        //根据不同种类赋不同大小
+                        if (node.category >= 4 && node.category < 7) {
+                            data_temp.symbolSize = 70;
+                        }
+                        else if (node.category > 0 && node.category < 3) {
+                            data_temp.symbolSize = 55;
+                        }
+                        data.push(data_temp);
+                        nameSet.add(node.name); // 将节点名称添加到集合中
+                    }
+
+                    // 处理边的数据
+                    for (var k = 0; k < edges.length; k++) {
+                        var edge = edges[k];
+                        var link = {
+                            source: edge.start_node,
+                            target: edge.end_node,
+                            name: edge.type,
+                            des: edge.type,
+                        };
+                        links.push(link);
+                    }
+                    // 图表配置项
+                    var option = {
+                        title: {
+                            text: '知识图谱总览'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            backgroundColor: 'transparent',
+                            formatter: function (params) {
+                                var node = params.data;
+                                var str = '<div style="width:500px;padding:10px;box-sizing:border-box;border-radius:4px;position:relative;background:rgba(0,0,0,0.8);">';
+                                str += '<div style="display:flex;align-items:center;"><strong>' + node.des + '</strong></div>';
+                                var En2Ch = {
+                                    'feature': "性味归经",
+                                    "form": "形态",
+                                    "attending": "临床应用",
+                                    "function": "功效与作用",
+                                    "warning": "使用禁忌",
+                                    "alias": "别名",
+                                    "place": "产地分布",
+                                    "picture": "图片",
+                                    "english_name": "英文名",
+                                    "type": "类型",
+                                    "composition": "组成",
+                                    "usage": "用法",
+                                    "source": "起点",
+                                    "target": "终点",
+                                    "name": "名称"
+                                };
+                                // 添加图片内容
+                                if (node.picture) {
+                                    var imageStyle = 'max-width:100%;height:auto;';
+                                    var loadingStyle = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);';
+                                    var loadingHtml = '<div id="loading-spinner" style="' + loadingStyle + '">' +
+                                        '<div style="border: 3px solid #f3f3f3;border-top: 3px solid #3498db;border-radius: 50%;width: 16px;height: 16px;animation: spin 2s linear infinite;"></div>' +
+                                        '</div>';
+                                    var imgHtml = '<img src="' + node.picture + '" style="' + imageStyle + '" onload="hideLoadingSpinner()">';
+
+                                    str += '<div style="position:relative;">' + imgHtml + loadingHtml + '</div>';
+                                }
+
+                                // 添加节点属性
+                                for (var key in node) {
+                                    if (key !== 'des' && key !== 'symbolSize' && key !== 'category' && key !== 'picture' && key !== 'label' && key !== 'name' && key !== 'emphasis') {
+                                        str += '<div style="word-wrap: break-word; width: 100%;white-space:normal; text-align: left;"><span">' + En2Ch[key] + ':</span>' + node[key] + '</div>';
+                                    }
+                                }
+
+                                str += '</div>';
+                                return str;
+                            },
+
+                        },
+
+                        draggable: true,
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: {
+                                    show: true
+                                },
+                                restore: {
+                                    show: true
+                                },
+                                saveAsImage: {
+                                    show: true
+                                }
+                            }
+                        },
+                        legend: [{
+                            data: kind
+                        }],
+                        animationDurationUpdate: 1500,//数据更新动画的时长。
+                        animationEasingUpdate: 'quinticInOut',//数据更新动画的缓动效果
+                        series: [{
+                            type: 'graph',
+                            layout: 'force',
+                            roam: true,
+                            edgeSymbol: ['circle', 'arrow'],
+                            edgeSymbolSize: [2, 10],
+                            edgeLabel: {
+                                normal: {
+                                    textStyle: {
+                                        fontSize: 12
+                                    },
+                                    show: false,
+                                    formatter: function (x) {
+                                        return x.data.name;
+                                    }
+                                }
+                            },
+                            lineStyle: {
+                                normal: {
+                                    width: 1,
+                                    color: '#4b565b',
+                                }
+                            },
+                            force: {
+                                repulsion: 1000,
+                                edgeLength: [200, 600],
+                                gravity: 0.2
+                            },
+                            label: {
+                                normal: {
+                                    show: true,
+                                    textStyle: {}
+                                }
+                            },
+                            focusNodeAdjacency: true,
+                            draggable: true,
+                            slient: false,//是否响应点击事件，为false的时候就是响应
+                            emphasis: {
+                                lineStyle: {
+                                    width: 10
+                                }
+                            },
+                            data: data,
+                            links: links,
+                            categories: categories,
+                        }]
+                    };
+
+                    // 设置图表配置项并渲染图表
+                    myChart.setOption(option);
+                    myChart.on('click', function (params) {
+                        if (params.dataType == 'node') {
+                            var confirmResult = confirm("是否要打开该节点的详情页面？");
+                            if (confirmResult) {
+                                var url = "http://www.a-hospital.com/w/" + params.name;
+                                var title = params.name+"-详情页";
+                                parent.xadmin.add_tab(title, url);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+
+
+</body>
+
+</html>
