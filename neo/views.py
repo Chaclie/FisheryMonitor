@@ -131,3 +131,9 @@ def bot_response(request):
         # 将处理结果封装为 JSON 格式，并返回给前端
         response_data = {'bot_response': bot_response_text}
         return JsonResponse(response_data)
+    
+
+# Fish
+def MainInfo(request):
+    Info = {"Fishname": "wawafish",}
+    return render(request, 'MainInfo.html',Info)

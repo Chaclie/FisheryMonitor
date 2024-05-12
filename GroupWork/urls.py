@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from neo.views import system, zstp_show, select_attribute, simple_select_herb, simple_select_medicine, simple_select_prescr, cypher_change, welcome, admin_list, admin_role, smart_qa, smart_consult,bot_response
+
+from neo import views
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('system/zstp_show.html', zstp_show),
-    path('system/', system),
     path('system/welcome.html', welcome),
     path('system/select_attribute.html', select_attribute),
     path('system/simple_select_herb.html', simple_select_herb),
@@ -32,4 +33,9 @@ urlpatterns = [
     path('system/smart_QA.html', smart_qa),
     path('system/smart_Consult.html', smart_consult),
     path('get', bot_response, name='bot_response'),
+
+    # from this
+    path('admin/', admin.site.urls),
+    path('system/', system),
+    path('system/MainInfo.html', views.MainInfo),
 ]
