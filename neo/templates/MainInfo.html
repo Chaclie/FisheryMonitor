@@ -169,9 +169,9 @@
                     </div>
                     <div class="layui-col-md12">
                         <div class="layui-card">
-                            <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>报表统计</div>
+                            <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>信息监测</div>
                             <div class="layui-card-body">
-                                <div id="echarts-records" style="width: 100%;min-height:500px"></div>
+                                <div id="echarts-records" style="width: 50%;min-height:200px"></div>
                             </div>
                         </div>
                     </div>
@@ -394,7 +394,7 @@
                 trigger: 'axis'
             },
             legend: {
-                data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+                data:['气温监测','联盟广告','视频广告','直接访问','搜索引擎']
             },
             grid: {
                 left: '3%',
@@ -410,7 +410,7 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: ['周一','周二','周三','周四','周五','周六','周日']
+                data: ['六天前', '五天前', '四天前', '三天前', '前天', '昨天', '今天']
             },
             yAxis: {
                 type: 'value'
