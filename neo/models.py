@@ -12,3 +12,21 @@ class User(models.Model):
     password = models.CharField(max_length=20)
     email = models.EmailField()
     permission = models.IntegerField(default=0)
+
+'''
+@ Year：年
+@ Date：年月日
+@ Latin_Name：鱼群名
+@ Count：统计数量
+@ Mean_Length：平均长度
+@ Mean_Weight：平均重量
+'''
+class FishInfo(models.Model):
+    year = models.IntegerField()
+    date = models.DateField()
+    latin_name = models.CharField(max_length=30)
+    count = models.IntegerField()
+    mean_length = models.FloatField()
+    mean_weight = models.FloatField()
+
+

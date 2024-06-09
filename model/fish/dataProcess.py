@@ -154,10 +154,10 @@ def get_top_info():
 
 
 if __name__ == '__main__':
-    # extract_data()
-    # clean_data()
-    # process_data()
-    # print(getTop3())
-    # split_with_time()
+    extract_data()
+    clean_data()
+    process_data()
+    print(getTop3())
+    split_with_time()
     get_top_info()
 

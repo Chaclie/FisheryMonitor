@@ -48,23 +48,5 @@ if __name__ == '__main__':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         predictions = test(model, X_test, Y_test,scaler_y)
 
-    # X_train, Y_train, X_test, Y_test, scaler_y = train_test_split(get_fish_data(TOP3[0]))
-    # # 移动到GPU
-    # X_train, Y_train = X_train.to(device), Y_train.to(device)
-    # X_test, Y_test = X_test.to(device), Y_test.to(device)
-    # loaded_model = LSTM(input_size, hidden_size, output_size, num_layers).to(device)
-    # loaded_model.load_state_dict(torch.load(f'{SAVE_PATH}/fish_0.pth'))
-    # loaded_model.eval()
-    # with torch.no_grad():
-    #     predictions = loaded_model(X_test)
-    #     loss = criterion(predictions, Y_test)
-    #     print(f'Test Loss: {loss.item():.6f}')
-    # # 反归一化预测结果
-    # predictions = scaler_y.inverse_transform(predictions.cpu().numpy())
-    # print(type(predictions))
-    # print(X_train.shape)
-    # print(X_test[0])
-    # print(predictions.mean(axis=0))
-
 
 

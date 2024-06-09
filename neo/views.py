@@ -2,10 +2,11 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
-from neo.models import User
+from neo.models import User,FishInfo
+from model.fish.LSTM_fish import LSTMModel
 import re,json,os
 import pandas as pd
-
+import numpy as np
 
 # Create your views here.
 def Index(request):
@@ -67,8 +68,13 @@ def Datacenter(request):
     return render(request, 'datacenter.html',data)
 
 def AIcenter(request):
-    
-    return render(request, 'AIcenter.html')
+    if len(request.GET) == 0:
+        return render(request, 'AIcenter.html')
+    show = int(request.GET.get('show')[0])
+    w = str(round(float(request.GET.get('w')),2))+ ' kg'
+    l = str(round(float(request.GET.get('l')),2))+ ' cm'
+    print(show,w,l)
+    return render(request, 'AIcenter.html', {'show':show, 'w':w, 'l':l})
 
 def AdminControl(request):
     return render(request, 'admincontrol.html')
@@ -220,3 +226,35 @@ def get_top_info(request):
     with open(os.path.join(path,'top_info.json'),'r') as f:
         data = json.load(f)
     return JsonResponse(data,safe=False)
+
+def writeDB(request):
+    FishInfo.objects.all().delete() # 防止重复写入
+    usecols = ['Year','Date', 'Latin_Name', 'Count', 'Mean_Length', 'Mean_Weight']
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/fish/processed")
+    data = pd.read_csv(os.path.join(path,"fish_final.csv"),usecols=usecols)
+    for i in range(len(data)):
+        row = data.iloc[i]
+        FishInfo.objects.create(year=row['Year'], date=row['Date'], latin_name=row['Latin_Name'], count=row['Count'], mean_length=row['Mean_Length'], mean_weight=row['Mean_Weight'])
+    return HttpResponse("success")
+
+def fish_predict(request):
+    if request.method == "GET":
+        fish_species = FishInfo.objects.values('latin_name').distinct()
+        return render(request, 'fish_predict.html', {'fish_species':fish_species})
+    else:
+        fish_name = request.POST.get('fish_name')
+        duration = int(request.POST.get('duration'))
+        fish_data = FishInfo.objects.filter(latin_name=fish_name)
+        data = pd.DataFrame(list(fish_data.values()),columns=['id','year','date','latin_name','count','mean_length','mean_weight'])
+        data['date_ordinal'] = data['date'].apply(lambda x: x.toordinal())
+        data = data[['year', 'date_ordinal', 'count']]
+        data = np.array(data)[-1*duration:]
+        data = np.expand_dims(data, axis=0)
+
+        # 获取当前绝对路径
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        SAVE_PATH = os.path.join(BASE_DIR, "model/data/fish/save")
+        model = LSTMModel(3,100,2,2,SAVE_PATH=SAVE_PATH)
+        predictions = model.api(data,DATA_PATH=os.path.join(BASE_DIR, "model/data/fish/processed/fish_final.csv"))
+        return redirect(f'http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}')

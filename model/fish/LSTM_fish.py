@@ -60,7 +60,7 @@ class LSTM(nn.Module):
         return out
 
 class LSTMModel():
-    def __init__(self, input_size, hidden_size, num_layers, output_size):
+    def __init__(self, input_size, hidden_size, num_layers, output_size,SAVE_PATH=SAVE_PATH):
         self.model1 = LSTM(input_size, hidden_size, num_layers, output_size).to(device)
         self.model2 = LSTM(input_size, hidden_size, output_size, num_layers).to(device)
         self.model3 = LSTM(input_size, hidden_size, output_size, num_layers).to(device)
@@ -70,8 +70,8 @@ class LSTMModel():
         self.model2.load_state_dict(torch.load(f'{SAVE_PATH}/fish_1.pth'))
         self.model3.load_state_dict(torch.load(f'{SAVE_PATH}/fish_2.pth'))
 
-    def api(self, X_test):
-        X_test = X_test.to(device)
+    def api(self, X_test,DATA_PATH=DATA_PATH):
+        X_test = torch.tensor(X_test, dtype=torch.float32).to(device)
         self.model1.eval()
         self.model2.eval()
         self.model3.eval()
@@ -80,4 +80,20 @@ class LSTMModel():
             predictions2 = self.model2(X_test)
             predictions3 = self.model3(X_test)
         predictions = self.rates[0] * predictions1 + self.rates[1] * predictions2 + self.rates[2] * predictions3
-        return predictions.mean(axis=0)
+        scaler = MinMaxScaler()
+        scaler.fit(pd.read_csv(DATA_PATH, index_col=0)[['Mean_Length', 'Mean_Weight']])
+        predictions = scaler.inverse_transform(np.abs(predictions.cpu().numpy()))
+        return predictions[0]
+
+if __name__ == '__main__':
+    data = pd.read_csv(DATA_PATH, index_col=0)
+    data = data[data['Latin_Name'] == 'Dorosoma cepedianum']
+    data['Date'] = pd.to_datetime(data['Date'])
+    data['Date_ordinal'] = data['Date'].apply(lambda x: x.toordinal())
+    data = data[['Year', 'Date_ordinal', 'Count']]
+    data = np.array(data)
+    data = data[-10:]
+    data = np.expand_dims(data, axis=0)
+    model = LSTMModel(3,100,2,2,SAVE_PATH=SAVE_PATH)
+    data = model.api(data)
+    print(data)

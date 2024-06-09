@@ -143,9 +143,9 @@
                                                 </a>
                                             </div>
                                             <div class="layui-col-xs6 layuimini-qiuck-module">
-                                                <a href="javascript:;" layuimini-content-href="templates/404.html" data-title="轨迹追踪" data-icon="fa fa-search">
+                                                <a href="http://127.0.0.1:8000/fish/predict" layuimini-content-href="templates/404.html" data-title="轨迹追踪" data-icon="fa fa-search">
                                                     <i class="fa fa-search"></i>
-                                                    <cite>轨迹追踪</cite>
+                                                    <cite>预测生长</cite>
                                                 </a>
                                             </div>
                                             <div class="layui-col-xs6 layuimini-qiuck-module">
@@ -262,7 +262,31 @@
                         <B><BIG><font color="red">-- 海啸警报(2024-05-01 13:34)(国家海洋局南海预报中心发布)</font></BIG></B></a>
                     </div>
                 </div>
-
+                {% if show == 1 %}
+                 <div class="layui-card">
+                    <div class="layui-card-header"><i class="fa fa-paper-plane-o icon"></i>鱼群预测信息(未来十天走向)</div>
+                    <div class="layui-card-body layui-text">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="100">
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <td>预期鱼群平均身长</td>
+                                <td>
+                                    {{ l }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>预期鱼群平均体重</td>
+                                <td>{{ w }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -50,4 +50,6 @@ urlpatterns = [
     path('fish/getTOP5', getTOP5),
     path('fish/get_fish_change', get_fish_change),
     path('fish/get_top_info', get_top_info),
+    path('fish/writeDB', writeDB),
+    path('fish/predict', fish_predict),
 ]
