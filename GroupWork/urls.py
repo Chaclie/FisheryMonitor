@@ -44,4 +44,10 @@ urlpatterns = [
     path('backend/get_data', get_data),
     path('backend/edit_data',edit_data),
     path('backend/edit_check',edit_check),
+
+    # 鱼群
+    path('fish/get_fish_statistics', get_fish_statistics),
+    path('fish/getTOP5', getTOP5),
+    path('fish/get_fish_change', get_fish_change),
+    path('fish/get_top_info', get_top_info),
 ]

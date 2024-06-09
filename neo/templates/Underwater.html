@@ -169,15 +169,15 @@
                             <tbody>
                                 <tr>
                                     <td>鱼种</td>
-                                    <td>50+</td>
+                                    <td>{{ data.fish_species }}</td>
                                 </tr>
                                 <tr>
-                                    <td>鱼苗</td>
-                                    <td>500尾</td>
+                                    <td>平均身长</td>
+                                    <td>{{ data.mean_length }} cm</td>
                                 </tr>
                                 <tr>
-                                    <td>生长</td>
-                                    <td>600尾</td>
+                                    <td>平均体重</td>
+                                    <td>{{ data.mean_weight }} kg</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -194,7 +194,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>159485尾</td>
+                                    <td>{{ data.fish_count }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -244,42 +244,32 @@
                 </div>
                 <div class="layui-row layui-col-space15">
                     <div class="layui-btn-container layui-col-md2">
-                        <button type="button" class="layui-btn layui-btn-radius"
-                            onclick="changeData('鱼类1质量')">鱼类1质量</button>
-                        <button type="button" class="layui-btn layui-btn-normal layui-btn-radius"
-                            onclick="changeData('鱼类1尺寸')">鱼类1尺寸</button>
+                        <button type="button" id="mybtn1" class="layui-btn layui-btn-radius">鱼类1质量</button>
+                        <button type="button" id="mybtn2" class="layui-btn layui-btn-normal layui-btn-radius">鱼类1尺寸</button>
                         <button type="button" class="layui-btn layui-btn-warm layui-btn-radius"
                             onclick="changeData('鱼类1生命')">鱼类1生命</button>
                     </div>
                     <div class="layui-btn-container layui-col-md2">
-                        <button type="button" class="layui-btn layui-btn-radius"
-                            onclick="changeData('鱼类2质量')">鱼类2质量</button>
-                        <button type="button" class="layui-btn layui-btn-normal layui-btn-radius"
-                            onclick="changeData('鱼类2尺寸')">鱼类2尺寸</button>
+                        <button type="button" id="mybtn3" class="layui-btn layui-btn-radius">鱼类2质量</button>
+                        <button type="button" id="mybtn4" class="layui-btn layui-btn-normal layui-btn-radius">鱼类2尺寸</button>
                         <button type="button" class="layui-btn layui-btn-warm layui-btn-radius"
                             onclick="changeData('鱼类2生命')">鱼类2生命</button>
                     </div>
                     <div class="layui-btn-container layui-col-md2">
-                        <button type="button" class="layui-btn layui-btn-radius"
-                            onclick="changeData('鱼类3质量')">鱼类3质量</button>
-                        <button type="button" class="layui-btn layui-btn-normal layui-btn-radius"
-                            onclick="changeData('鱼类3尺寸')">鱼类3尺寸</button>
+                        <button type="button" id="mybtn5" class="layui-btn layui-btn-radius">鱼类3质量</button>
+                        <button type="button" id="mybtn6" class="layui-btn layui-btn-normal layui-btn-radius">鱼类3尺寸</button>
                         <button type="button" class="layui-btn layui-btn-warm layui-btn-radius"
                             onclick="changeData('鱼类3生命')">鱼类3生命</button>
                     </div>
                     <div class="layui-btn-container layui-col-md2">
-                        <button type="button" class="layui-btn layui-btn-radius"
-                            onclick="changeData('鱼类4质量')">鱼类4质量</button>
-                        <button type="button" class="layui-btn layui-btn-normal layui-btn-radius"
-                            onclick="changeData('鱼类4尺寸')">鱼类4尺寸</button>
+                        <button type="button" id="mybtn7" class="layui-btn layui-btn-radius">鱼类4质量</button>
+                        <button type="button" id="mybtn8" class="layui-btn layui-btn-normal layui-btn-radius">鱼类4尺寸</button>
                         <button type="button" class="layui-btn layui-btn-warm layui-btn-radius"
                             onclick="changeData('鱼类4生命')">鱼类4生命</button>
                     </div>
                     <div class="layui-btn-container layui-col-md2">
-                        <button type="button" class="layui-btn layui-btn-radius"
-                            onclick="changeData('鱼类5质量')">鱼类5质量</button>
-                        <button type="button" class="layui-btn layui-btn-normal layui-btn-radius"
-                            onclick="changeData('鱼类5尺寸')">鱼类5尺寸</button>
+                        <button type="button" id="mybtn9" class="layui-btn layui-btn-radius">鱼类5质量</button>
+                        <button type="button" id="mybtn10" class="layui-btn layui-btn-normal layui-btn-radius">鱼类5尺寸</button>
                         <button type="button" class="layui-btn layui-btn-warm layui-btn-radius"
                             onclick="changeData('鱼类5生命')">鱼类5生命</button>
                     </div>
@@ -350,7 +340,7 @@
                     </div>
                 </div>
                 <div class="layui-card">
-                    <div class="layui-card-header"><i class="fa fa-fire icon"></i>鱼群信息</div>
+                    <div class="layui-card-header"><i class="fa fa-fire icon"></i>鱼群种类占比信息</div>
                     <div class="layui-card-body">
                         <div id="echarts-pies" style="background-color:#ffffff;min-height:400px;padding: 10px">
                         </div>
@@ -366,400 +356,455 @@
     <script src="../static/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
     <!-- <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.0.2/echarts.min.js"></script> -->
     <!-- <script src="../static/jslay-module/echarts/echarts.js" charset="utf-8"></script> -->
-    <script>
-        layui.use(['layer', 'miniTab', 'echarts'], function () {
-            var $ = layui.jquery,
-                layer = layui.layer,
-                miniTab = layui.miniTab,
-                echarts = layui.echarts;
+<script>
+    layui.use(['layer', 'miniTab', 'echarts'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            miniTab = layui.miniTab,
+            echarts = layui.echarts;
 
-            miniTab.listen();
+        miniTab.listen();
 
-            /**
-             * 查看公告信息
-             **/
-            $('body').on('click', '.layuimini-notice', function () {
-                var title = $(this).children('.layuimini-notice-title').text(),
-                    noticeTime = $(this).children('.layuimini-notice-extra').text(),
-                    content = $(this).children('.layuimini-notice-content').html();
-                var html = '<div style="padding:15px 20px; text-align:justify; line-height: 22px;border-bottom:1px solid #e2e2e2;background-color: #2f4056;color: #ffffff">\n' +
-                    '<div style="text-align: center;margin-bottom: 20px;font-weight: bold;border-bottom:1px solid #718fb5;padding-bottom: 5px"><h4 class="text-danger">' + title + '</h4></div>\n' +
-                    '<div style="font-size: 12px">' + content + '</div>\n' +
-                    '</div>\n';
-                parent.layer.open({
-                    type: 1,
-                    title: '系统公告' + '<span style="float: right;right: 1px;font-size: 12px;color: #b1b3b9;margin-top: 1px">' + noticeTime + '</span>',
-                    area: '300px;',
-                    shade: 0.8,
-                    id: 'layuimini-notice',
-                    btn: ['查看', '取消'],
-                    btnAlign: 'c',
-                    moveType: 1,
-                    content: html,
-                    success: function (layero) {
-                        var btn = layero.find('.layui-layer-btn');
-                        btn.find('.layui-layer-btn0').attr({
-                            href: 'https://gitee.com/zhongshaofa/layuimini',
-                            target: '_blank'
-                        });
-                    }
-                });
+        /**
+         * 查看公告信息
+         **/
+        $('body').on('click', '.layuimini-notice', function () {
+            var title = $(this).children('.layuimini-notice-title').text(),
+                noticeTime = $(this).children('.layuimini-notice-extra').text(),
+                content = $(this).children('.layuimini-notice-content').html();
+            var html = '<div style="padding:15px 20px; text-align:justify; line-height: 22px;border-bottom:1px solid #e2e2e2;background-color: #2f4056;color: #ffffff">\n' +
+                '<div style="text-align: center;margin-bottom: 20px;font-weight: bold;border-bottom:1px solid #718fb5;padding-bottom: 5px"><h4 class="text-danger">' + title + '</h4></div>\n' +
+                '<div style="font-size: 12px">' + content + '</div>\n' +
+                '</div>\n';
+            parent.layer.open({
+                type: 1,
+                title: '系统公告' + '<span style="float: right;right: 1px;font-size: 12px;color: #b1b3b9;margin-top: 1px">' + noticeTime + '</span>',
+                area: '300px;',
+                shade: 0.8,
+                id: 'layuimini-notice',
+                btn: ['查看', '取消'],
+                btnAlign: 'c',
+                moveType: 1,
+                content: html,
+                success: function (layero) {
+                    var btn = layero.find('.layui-layer-btn');
+                    btn.find('.layui-layer-btn0').attr({
+                        href: 'https://gitee.com/zhongshaofa/layuimini',
+                        target: '_blank'
+                    });
+                }
             });
+        });
+</script>
 
-            /**
-             * 报表功能
-             */
-            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
-            var optionRecords = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
+<script>
+    layui.use(['layer', 'echarts'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            echarts = layui.echarts;
+
+        /**
+         * 鱼群属性折线图
+         */
+        $.ajax({
+            url: "http://127.0.0.1:8000/fish/get_top_info",
+            method: "GET",
+            success: function (data) {
+                
+        var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+        var optionRecords = {
+            title: {
+                text: '鱼群属性分布图'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
                     }
-                },
-                xAxis: {
+                }
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-                },
-                yAxis: {
+                    data: ['极低', '低', '较低', '中等', '较高', '高', '极高']
+                }
+            ],
+            yAxis: [
+                {
                     type: 'value'
-                },
-                series: [
-                    {
-                        name: '邮件营销',
-                        type: 'line',
-                        data: [120, 132, 101, 134, 90, 230, 210]
-                    },
-                    {
-                        name: '联盟广告',
-                        type: 'line',
-                        data: [220, 182, 191, 234, 290, 330, 310]
-                    },
-                    {
-                        name: '视频广告',
-                        type: 'line',
-                        data: [150, 232, 201, 154, 190, 330, 410]
-                    },
-                    {
-                        name: '直接访问',
-                        type: 'line',
-                        data: [320, 332, 301, 334, 390, 330, 320]
-                    },
-                    {
-                        name: '搜索引擎',
-                        type: 'line',
-                        data: [820, 932, 901, 934, 1290, 1330, 1320]
-                    }
-                ]
-            };
-            echartsRecords.setOption(optionRecords);
-
-            // echarts 窗口缩放自适应
-            window.onresize = function () {
-                echartsRecords.resize();
-            }
-
-        });
-    </script>
-    <script>
-        function changeData(dataName) {
-            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
-            new_data = []
-            for (let i = 0; i < 7; i++)
-                new_data.push(Math.floor(Math.random() * 1000));
+                }
+            ],
+            series: [
+                {
+                    name: '鱼类1质量',
+                    type: 'line',
+                    areaStyle: {},
+                    data: data[0].weight
+                }
+            ]
+        };
+        echartsRecords.setOption(optionRecords);
+        
+        var mybtn1 = document.getElementById("mybtn1");
+        mybtn1.onclick = function () {
             echartsRecords.setOption({
-                series: [
-                    {
-                        name: dataName,
+                    series: [{
+                        name: '鱼类1质量', 
                         type: 'line',
                         areaStyle: {},
-                        data: new_data
-                    }
-                ]
-            });
-        }
-
-        layui.use(['layer', 'echarts'], function () {
-            var $ = layui.jquery,
-                layer = layui.layer,
-                echarts = layui.echarts;
-
-            /**
-             * 鱼群属性折线图
-             */
-            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
-
-            var optionRecords = {
-                title: {
-                    text: '鱼群属性分布图'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            backgroundColor: '#6a7985'
-                        }
-                    }
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: [
-                    {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: ['极低', '低', '较低', '中等', '较高', '高', '极高']
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value'
-                    }
-                ],
-                series: [
-                    {
-                        name: '鱼类1质量',
+                        data: data[0].weight
+                    }]
+                });
+        };
+        
+        var mybtn2 = document.getElementById("mybtn2");
+        mybtn2.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类1尺寸', 
                         type: 'line',
                         areaStyle: {},
-                        data: [120, 132, 101, 134, 90, 230, 210]
-                    }
-                ]
-            };
-
-            echartsRecords.setOption(optionRecords);
-            /**
-             * 鱼群数量折线图
-             */
-            var echartsRecords1 = echarts.init(document.getElementById('echarts-records1'), 'walden');
-
-            var optionRecords1 = {
-                title: {
-                    text: '鱼群数量图'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            backgroundColor: '#6a7985'
-                        }
-                    }
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: [
-                    {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: []
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value'
-                    }
-                ],
-                series: [
-                    {
-                        name: '所有鱼类',
+                        data: data[0].length
+                    }]
+                });
+        };
+        
+        var mybtn3 = document.getElementById("mybtn3");
+        mybtn3.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类2质量', 
                         type: 'line',
-                        data: []
+                        areaStyle: {},
+                        data: data[1].weight
+                    }]
+                });
+        };        
+
+        var mybtn4 = document.getElementById("mybtn4");
+        mybtn4.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类2尺寸', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[1].length
+                    }]
+                });
+        };        
+        
+        var mybtn5 = document.getElementById("mybtn5");
+        mybtn5.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类3质量', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[2].weight
+                    }]
+                });
+        };        
+
+        var mybtn6 = document.getElementById("mybtn6");
+        mybtn6.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类3尺寸', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[2].length
+                    }]
+                });
+        };            
+                
+        var mybtn7 = document.getElementById("mybtn7");
+        mybtn7.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类4质量', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[3].weight
+                    }]
+                });
+        };        
+
+        var mybtn8 = document.getElementById("mybtn8");
+        mybtn8.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类4尺寸', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[3].length
+                    }]
+                });
+        };          
+        
+        var mybtn9 = document.getElementById("mybtn9");
+        mybtn9.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类5质量', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[4].weight
+                    }]
+                });
+        };        
+
+        var mybtn10 = document.getElementById("mybtn10");
+        mybtn10.onclick = function () {
+            echartsRecords.setOption({
+                    series: [{
+                        name: '鱼类5尺寸', 
+                        type: 'line',
+                        areaStyle: {},
+                        data: data[4].length
+                    }]
+                });
+        };
+        
+                    },
+        });
+
+        /**
+         * 鱼群数量折线图
+         */
+        $.ajax({
+            url: "http://127.0.0.1:8000/fish/get_fish_change",
+            method: "GET",
+            success: function (data) {
+        var echartsRecords1 = echarts.init(document.getElementById('echarts-records1'), 'walden');
+        var dates = data.Date.map(function(date) {
+                    return date.slice(0, 7); // 截取日期字符串的前7个字符，即年份和月份
+                });
+        var optionRecords1 = {
+            title: {
+                text: '鱼群数量图'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
                     }
-                ]
-            };
-            var hist_len = 60;
-            var last_data = 0;
-            for (var i = 0; i < hist_len; i++) {
-                last_data = Math.floor(Math.random() * 100) * 0.6 + last_data * 0.4;
-                optionRecords1.series[0].data.push(last_data);
-                optionRecords1.xAxis[0].data.push(i);
+                }
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: dates
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '所有鱼类',
+                    type: 'line',
+                    data: data.Count
+                }
+            ]
+        };
+        echartsRecords1.setOption(optionRecords1);
+                    },
+            error: function (error) {
+                console.log("Error:", error);
             }
-            echartsRecords1.setOption(optionRecords1);
+        });
 
-
-            /**
-             * 玫瑰图表
-             */
-            var echartsPies = echarts.init(document.getElementById('echarts-pies'), 'walden');
-            var optionPies = {
-                title: {
-                    text: '鱼群种类占比',
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{a} <br/>{b} : {c} ({d}%)'
-                },
-                legend: {
-                    orient: 'vertical',
-                    left: 'left',
-                    data: ['鱼类1', '鱼类2', '鱼类3', '鱼类4', '鱼类5']
-                },
-                series: [
-                    {
-                        name: '鱼群占比',
-                        type: 'pie',
-                        radius: '55%',
-                        center: ['50%', '60%'],
-                        roseType: 'radius',
-                        data: [
-                            { value: 150, name: '鱼类1' },
-                            { value: 200, name: '鱼类2' },
-                            { value: 250, name: '鱼类3' },
-                            { value: 225, name: '鱼类4' },
-                            { value: 175, name: '鱼类5' }
-                        ],
-                        emphasis: {
-                            itemStyle: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+        /**
+         * 玫瑰图表
+         */
+        
+        $.ajax({
+            url: "http://127.0.0.1:8000/fish/getTOP5",
+            method: "GET",
+            success: function (data) {
+                // 初始化 ECharts 图表
+                var echartsPies = echarts.init(document.getElementById('echarts-pies'), 'walden');
+                console.log("test!!!!!")
+                // 配置 ECharts 图表选项
+                var optionPies = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b} : {c} ({d}%)'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        data: data.map(item => item.name) 
+                    },
+                    series: [
+                        {
+                            name: '鱼群占比',
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '60%'],
+                            roseType: 'radius',
+                            data: data, 
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
                             }
                         }
-                    }
-                ]
-            };
-            echartsPies.setOption(optionPies);
-
-
-            /**
-             * 柱状图
-             */
-            var echartsDataset = echarts.init(document.getElementById('echarts-dataset'), 'walden');
-
-            var optionDataset = {
-                legend: {},
-                tooltip: {},
-                dataset: {
-                    dimensions: ['product', '2015', '2016', '2017'],
-                    source: [
-                        { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
-                        { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-                        { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
-                        { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 }
                     ]
-                },
-                xAxis: { type: 'category' },
-                yAxis: {},
-                // Declare several bar series, each will be mapped
-                // to a column of dataset.source by default.
-                series: [
-                    { type: 'bar' },
-                    { type: 'bar' },
-                    { type: 'bar' }
-                ]
-            };
+                };
 
-            echartsDataset.setOption(optionDataset);
-
-
-            /**
-             * 中国地图
-             */
-            var echartsMap = echarts.init(document.getElementById('echarts-map'), 'walden');
-
-            var optionMap = {
-                legend: {},
-                tooltip: {
-                    trigger: 'axis',
-                    showContent: false
-                },
-                dataset: {
-                    source: [
-                        ['product', '2012', '2013', '2014', '2015', '2016', '2017'],
-                        ['Matcha Latte', 41.1, 30.4, 65.1, 53.3, 83.8, 98.7],
-                        ['Milk Tea', 86.5, 92.1, 85.7, 83.1, 73.4, 55.1],
-                        ['Cheese Cocoa', 24.1, 67.2, 79.5, 86.4, 65.2, 82.5],
-                        ['Walnut Brownie', 55.2, 67.1, 69.2, 72.4, 53.9, 39.1]
-                    ]
-                },
-                xAxis: { type: 'category' },
-                yAxis: { gridIndex: 0 },
-                grid: { top: '55%' },
-                series: [
-                    { type: 'line', smooth: true, seriesLayoutBy: 'row' },
-                    { type: 'line', smooth: true, seriesLayoutBy: 'row' },
-                    { type: 'line', smooth: true, seriesLayoutBy: 'row' },
-                    { type: 'line', smooth: true, seriesLayoutBy: 'row' },
-                    {
-                        type: 'pie',
-                        id: 'pie',
-                        radius: '30%',
-                        center: ['50%', '25%'],
-                        label: {
-                            formatter: '{b}: {@2012} ({d}%)'
-                        },
-                        encode: {
-                            itemName: 'product',
-                            value: '2012',
-                            tooltip: '2012'
-                        }
-                    }
-                ]
-            };
-
-            echartsMap.setOption(optionMap);
-
-            /**
-             * 仪表盘
-             */
-            var echartsGauge = echarts.init(document.getElementById('echarts-gauge'), 'walden');
-            var optionGauge = {
-                tooltip: {
-                    formatter: "{a} <br/>{b} : {c}%"
-                },
-                toolbox: {
-                    feature: {
-                        restore: {},
-                        saveAsImage: {}
-                    }
-                },
-                series: [{
-                    name: '速度',
-                    type: 'gauge',
-                    detail: { formatter: '{value} km/h' },
-                    data: [{ value: 50, name: '速度' }]
-                }]
-            };
-            echartsGauge.setOption(optionGauge, true);
-
-            // echarts 窗口缩放自适应
-            window.onresize = function () {
-                echartsRecords.resize();
+                // 设置 ECharts 图表选项
+                echartsPies.setOption(optionPies);
+            },
+            error: function (error) {
+                console.log("Error:", error);
             }
-
         });
-    </script>
+
+        /**
+         * 柱状图
+         */
+        var echartsDataset = echarts.init(document.getElementById('echarts-dataset'), 'walden');
+
+        var optionDataset = {
+            legend: {},
+            tooltip: {},
+            dataset: {
+                dimensions: ['product', '2015', '2016', '2017'],
+                source: [
+                    { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+                    { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
+                    { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
+                    { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 }
+                ]
+            },
+            xAxis: { type: 'category' },
+            yAxis: {},
+            // Declare several bar series, each will be mapped
+            // to a column of dataset.source by default.
+            series: [
+                { type: 'bar' },
+                { type: 'bar' },
+                { type: 'bar' }
+            ]
+        };
+
+        echartsDataset.setOption(optionDataset);
+
+        /**
+         * 中国地图
+         */
+        var echartsMap = echarts.init(document.getElementById('echarts-map'), 'walden');
+
+        var optionMap = {
+            legend: {},
+            tooltip: {
+                trigger: 'axis',
+                showContent: false
+            },
+            dataset: {
+                source: [
+                    ['product', '2012', '2013', '2014', '2015', '2016', '2017'],
+                    ['Matcha Latte', 41.1, 30.4, 65.1, 53.3, 83.8, 98.7],
+                    ['Milk Tea', 86.5, 92.1, 85.7, 83.1, 73.4, 55.1],
+                    ['Cheese Cocoa', 24.1, 67.2, 79.5, 86.4, 65.2, 82.5],
+                    ['Walnut Brownie', 55.2, 67.1, 69.2, 72.4, 53.9, 39.1]
+                ]
+            },
+            xAxis: { type: 'category' },
+            yAxis: { gridIndex: 0 },
+            grid: { top: '55%' },
+            series: [
+                { type: 'line', smooth: true, seriesLayoutBy: 'row' },
+                { type: 'line', smooth: true, seriesLayoutBy: 'row' },
+                { type: 'line', smooth: true, seriesLayoutBy: 'row' },
+                { type: 'line', smooth: true, seriesLayoutBy: 'row' },
+                {
+                    type: 'pie',
+                    id: 'pie',
+                    radius: '30%',
+                    center: ['50%', '25%'],
+                    label: {
+                        formatter: '{b}: {@2012} ({d}%)'
+                    },
+                    encode: {
+                        itemName: 'product',
+                        value: '2012',
+                        tooltip: '2012'
+                    }
+                }
+            ]
+        };
+
+        echartsMap.setOption(optionMap);
+
+        /**
+         * 仪表盘
+         */
+        var echartsGauge = echarts.init(document.getElementById('echarts-gauge'), 'walden');
+        var optionGauge = {
+            tooltip: {
+                formatter: "{a} <br/>{b} : {c}%"
+            },
+            toolbox: {
+                feature: {
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            series: [{
+                name: '速度',
+                type: 'gauge',
+                detail: { formatter: '{value} km/h' },
+                data: [{ value: 50, name: '速度' }]
+            }]
+        };
+        echartsGauge.setOption(optionGauge, true);
+
+        // echarts 窗口缩放自适应
+        window.onresize = function () {
+            echartsRecords.resize();
+            echartsRecords1.resize();
+            echartsDataset.resize();
+            echartsMap.resize();
+            echartsGauge.resize();
+        }
+
+    });
+</script>
+
 
 </body>
 

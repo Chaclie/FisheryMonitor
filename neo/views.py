@@ -3,7 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from neo.models import User
-import re,json
+import re,json,os
+import pandas as pd
 
 
 # Create your views here.
@@ -48,7 +49,10 @@ def MainInfo(request):
     return render(request, 'MainInfo.html')
 
 def Underwater(request):
-    return render(request, 'Underwater.html')
+    res = get_fish_statistics(request)
+    data = json.loads(res.content)
+    print(data)
+    return render(request, 'Underwater.html', {'data':data})
 
 def Datacenter(request):
     data = {
@@ -164,3 +168,55 @@ def get_data(request):
 
 def smart_qa(request):
     return render(request, 'smart_QA.html')
+
+# 获取统计信息
+def get_fish_statistics(request):
+    # 获取当前绝对路径
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR,"model/data/fish/processed")
+    data = pd.read_csv(os.path.join(path,'fish.csv'),index_col=0)
+    # 获取鱼类种类和数量
+    fish_species = data['Latin_Name'].unique()
+    fish_count = int(data['Count'].sum())
+    data = pd.read_csv(os.path.join(path,'fish_final.csv'),index_col=0)
+    # 获取平均体长和平均体重，保留两位小数
+    mean_length = round(data['Mean_Length'].mean(),2)
+    mean_weight = round(data['Mean_Weight'].mean(),2)
+    return JsonResponse({'fish_species':len(fish_species),
+                         'fish_count':fish_count,
+                         'mean_length':mean_length,
+                         'mean_weight':mean_weight
+                         })
+
+def getTOP5(request):
+    # 获取当前绝对路径
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/fish/processed")
+    data = pd.read_csv(os.path.join(path,'fish_cleaned.csv'),index_col=0)
+    # 获取top5
+    all_groups = data.groupby('Latin_Name')
+    tuples = []
+    for group_name in all_groups.groups:
+        curr_group = all_groups.get_group(group_name)
+        dates = curr_group['Date'].unique()
+        tuples.append((group_name, len(dates)))
+    tuples.sort(key=lambda x: x[1], reverse=True)
+    tuples = tuples[:5]
+    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(5)]
+    return JsonResponse(top5, safe=False)
+
+def get_fish_change(request):
+    # 获取当前绝对路径
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/fish/processed")
+    data = pd.read_csv(os.path.join(path,'fish_time.csv'),index_col=0)
+    data['Date'] = pd.to_datetime(data['Date'])
+    return JsonResponse(data.to_dict(orient='list'))
+
+def get_top_info(request):
+    # 获取当前绝对路径
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/fish/processed")
+    with open(os.path.join(path,'top_info.json'),'r') as f:
+        data = json.load(f)
+    return JsonResponse(data,safe=False)
