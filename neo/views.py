@@ -44,9 +44,7 @@ def MainInfo(request):
         'tempreture' : [25.9, 25.8, 25.7, 25.6, 25.5, 25.4, 25.3, 25.2, 25.1, 25.0],
         'NTU'   : [2.05, 2.04, 2.03, 2.02, 2.01, 2.00, 1.99, 1.98, 1.97, 1.96],
     }
-
-
-
+    
     return render(request, 'MainInfo.html')
 
 def Underwater(request):
