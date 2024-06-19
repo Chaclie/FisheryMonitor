@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from neo.models import User,FishInfo
 from model.fish.LSTM_fish import LSTMModel
+import model.water.dataFunction as waterModel
 import re,json,os
 import pandas as pd
 import numpy as np
@@ -20,7 +21,7 @@ def forget(request):
     return render(request, "forget_code.html")
 
 def system(request):
-    
+
     uid = request.GET.get('uid')
     if uid == None:
         return redirect("/")
@@ -31,21 +32,20 @@ def system(request):
     # return render(request, 'system.html')
 
 def MainInfo(request):
-    info = {
-        'ele_V' : 25.9,
-        'PH'    : 8.37,
-        'tempreture' : 25.9,
-        'NTU'   : 2.05,
-        'location': '../static/images/1.jpg',
+    #所有水文数据
+    AllData = waterModel.allVal()
+    #表所用的水文数据，例如FormData[近一天][temp][0]
+    FormData = {"All":waterModel.formVal("All"),"Day":waterModel.formVal("近1天"),"Week":waterModel.formVal("近1周"),"Month":waterModel.formVal("近1月")}
+    #平均数据
+    AvgData = waterModel.avgVal()
+
+    data = {
+        "AllData":AllData,
+        "FormData":FormData,
+        "AvgData":AvgData
     }
-    history = {
-        'ele_V' : [25.9, 25.8, 25.7, 25.6, 25.5, 25.4, 25.3, 25.2, 25.1, 25.0],
-        'PH'    : [8.37, 8.36, 8.35, 8.34, 8.33, 8.32, 8.31, 8.30, 8.29, 8.28],
-        'tempreture' : [25.9, 25.8, 25.7, 25.6, 25.5, 25.4, 25.3, 25.2, 25.1, 25.0],
-        'NTU'   : [2.05, 2.04, 2.03, 2.02, 2.01, 2.00, 1.99, 1.98, 1.97, 1.96],
-    }
-    
-    return render(request, 'MainInfo.html')
+
+    return render(request, 'MainInfo.html',data)
 
 def Underwater(request):
     res = get_fish_statistics(request)
