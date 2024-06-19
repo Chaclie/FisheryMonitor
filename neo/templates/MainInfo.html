@@ -204,33 +204,34 @@
                                                     align: center;
                                                 }
                                             </style>
+                                            
                                             <div>
-                                                <span>电池电压(V)：</span>
+                                                <span>水温(℃):</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>盐度(%)：</span>
+                                                <span>pH:</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>溶解氧(mg/L)：</span>
+                                                <span>溶解氧(mg/L):</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>浊度(NTU)：</span>
+                                                <span>导电率(μS/cm):</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>ph：</span>
+                                                <span>浊度(NTU):</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>水温('C)：</span>
+                                                <span>盐度(mg/L):</span>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
@@ -243,35 +244,14 @@
                         <div class="layui-col-md12">
                             <div class="layui-card">
                                 <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
-
-                                <div class="app">
-                                    <div style="display:inline-block;">
-                                        <form>
-                                            <span>请选择水文气象</span>
-                                            <select>
-                                                <option value="">电池电压</option>
-                                                <option value="">盐度</option>
-                                                <option value="">溶解氧</option>
-                                                <option value="">浊度</option>
-                                                <option value="">ph</option>
-                                                <option value="">水温</option>
-                                            </select>
-                                        </form>
-                                    </div>
-
-                                    <div style="display:inline-block;margin-left:10px;">
-                                        <span>请选择日期</span>
-                                        <input type="date" value="2021-08-01" id="myDate">
-                                    </div>
-                                </div>
+                                <button type="button" class="layui-btn layui-bg-green"
+                                    onclick="changeData('近1天')">总体</button>
                                 <button type="button" class="layui-btn layui-bg-blue"
                                     onclick="changeData('近1天')">近1天</button>
                                 <button type="button" class="layui-btn layui-bg-orange"
                                     onclick="changeData('近1周')">近1周</button>
                                 <button type="button" class="layui-btn layui-bg-red"
                                     onclick="changeData('近1月')">近1月</button>
-                                <button type="button" class="layui-btn layui-bg-purple"
-                                    onclick="changeData('近1年')">近1年</button>
                                 <div id="echarts-records" style="width: 100%;min-height:500px">
                                 </div>
                             </div>
@@ -426,7 +406,7 @@
                     trigger: 'axis'
                 },
                 legend: {
-                    data: [dataName + '电池电压(V)', dataName + '盐度(%)', dataName + '溶解氧(mg/L)', dataName + '浊度(NTU)', dataName + 'ph']
+                    data: ['水温(℃)', 'pH', '溶解氧(mg/L)', '导电率(μS/cm)', '浊度(NTU)', '盐度(mg/L)']
                 },
                 grid: {
                     left: '3%',
@@ -449,27 +429,32 @@
                 },
                 series: [
                     {
-                        name: dataName + '电池电压(V)',
+                        name: '水温(℃)',
                         type: 'line',
                         data: randlist(7)
                     },
                     {
-                        name: dataName + '盐度(%)',
+                        name: 'pH',
                         type: 'line',
                         data: randlist(7)
                     },
                     {
-                        name: dataName + '溶解氧(mg/L)',
+                        name: '溶解氧(mg/L)',
                         type: 'line',
                         data: randlist(7)
                     },
                     {
-                        name: dataName + '浊度(NTU)',
+                        name: '导电率(μS/cm)',
                         type: 'line',
                         data: randlist(7)
                     },
                     {
-                        name: dataName + 'ph',
+                        name: '浊度(NTU)',
+                        type: 'line',
+                        data: randlist(7)
+                    },
+                    {
+                        name: '盐度(mg/L)',
                         type: 'line',
                         data: randlist(7)
                     }
@@ -525,7 +510,7 @@
                     trigger: 'axis'
                 },
                 legend: {
-                    data: ['电池电压(V)', '盐度(%)', '溶解氧(mg/L)', '浊度(NTU)', 'ph']
+                    data: ['水温(℃)', 'pH', '溶解氧(mg/L)', '导电率(μS/cm)', '浊度(NTU)', '盐度(mg/L)']
                 },
                 grid: {
                     left: '3%',
@@ -548,12 +533,12 @@
                 },
                 series: [
                     {
-                        name: '电池电压(V)',
+                        name: '水温(℃)',
                         type: 'line',
                         data: [120, 132, 101, 134, 90, 230, 210]
                     },
                     {
-                        name: '盐度(%)',
+                        name: 'pH',
                         type: 'line',
                         data: [220, 182, 191, 234, 290, 330, 310]
                     },
@@ -563,14 +548,19 @@
                         data: [150, 232, 201, 154, 190, 330, 410]
                     },
                     {
-                        name: '浊度(NTU)',
+                        name: '导电率(μS/cm)',
                         type: 'line',
                         data: [320, 332, 301, 334, 390, 330, 320]
                     },
                     {
-                        name: 'ph',
+                        name: '浊度(NTU)',
                         type: 'line',
                         data: [820, 932, 901, 934, 1290, 1330, 1320]
+                    },
+                    {
+                        name: '盐度(mg/L)',
+                        type: 'line',
+                        data: [124, 967, 789, 345, 1290, 1330, 1320]
                     }
                 ]
             };
