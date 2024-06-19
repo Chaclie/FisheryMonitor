@@ -1,1 +1,7 @@
 .DS_Store
+/__pycache__/
+/GroupWork/__pycache__/
+/model/__pycache__/
+/model/fish/__pycache__/
+/neo/__pycache__/
+/neo/migrations/__pycache__/
