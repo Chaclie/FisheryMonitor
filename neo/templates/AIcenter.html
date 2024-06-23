@@ -294,6 +294,17 @@
 <script src="../static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script src="../static/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
 <script>
+    function updateVideoSource(videoId, src) {
+        var video = document.getElementById(videoId);
+        var source = video.querySelector('source');
+        var timestamp = new Date().getTime();
+        source.src = src + "?v=" + timestamp;
+        video.load();
+    }
+
+    updateVideoSource('video1', '../static/video/test.mp4');
+</script>
+<script>
     layui.use(['layer', 'miniTab','echarts'], function () {
         var $ = layui.jquery,
             layer = layui.layer,
