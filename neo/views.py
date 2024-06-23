@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
+from GroupWork import settings
 from neo.models import User,FishInfo
 from model.fish.LSTM_fish import LSTMModel
 import re,json,os
@@ -207,8 +208,8 @@ def getTOP5(request):
         dates = curr_group['Date'].unique()
         tuples.append((group_name, len(dates)))
     tuples.sort(key=lambda x: x[1], reverse=True)
-    tuples = tuples[:5]
-    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(5)]
+    tuples = tuples[:30]
+    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(30)]
     return JsonResponse(top5, safe=False)
 
 def get_fish_change(request):
@@ -258,3 +259,25 @@ def fish_predict(request):
         model = LSTMModel(3,100,2,2,SAVE_PATH=SAVE_PATH)
         predictions = model.api(data,DATA_PATH=os.path.join(BASE_DIR, "model/data/fish/processed/fish_final.csv"))
         return redirect(f'http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}')
+    
+
+# 从这里开始是视频和图像处理：
+
+def upload_video(request):
+    if request.method == 'POST' and request.FILES.get('video_file'):
+        video_file = request.FILES['video_file']
+        upload_type = request.POST.get('upload_type', 'unknown')
+
+        # 构造保存路径
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        upload_dir  = os.path.join(BASE_DIR, "neo\static\\video\\")
+        print(upload_dir)
+        video_file.name = f'{upload_type}.mp4'
+        # 保存文件
+        with open(os.path.join(upload_dir, video_file.name), 'wb+') as destination:
+            for chunk in video_file.chunks():
+                destination.write(chunk)
+        return render(request, 'MainInfo.html')
+    else :
+        # 处理 GET 请求
+        return render(request, 'MainInfo.html', {'error': '未上传视频！'})

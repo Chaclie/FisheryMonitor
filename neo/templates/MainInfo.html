@@ -64,7 +64,7 @@
 
         .welcome-module {
             width: 100%;
-            height: 210px;
+            height: 320px;
         }
 
         .panel {
@@ -156,81 +156,89 @@
             <div class="layui-row layui-col-space15">
                 <div class="layui-col-md8">
                     <div class="layui-row layui-col-space15">
-                        {% comment %} 视频模块 {% endcomment %}
-                        <div class="layui-col-md6">
+                        {% comment %} 历史记录模块 {% endcomment %}
+
+                        <div class="layui-col-md8">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-warning icon"></i>视频监控</div>
+                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
-                                        <div class="layui-row layui-col-space10">
-                                            <div class="layui-tab">
-                                                <ul class="layui-tab-title">
-                                                    <li class="layui-this">摄像头1</li>
-                                                    <li>摄像头2</li>
-                                                    <li>摄像头3</li>
-                                                </ul>
-                                                <div class="layui-tab-content">
-                                                    <div class="layui-tab-item layui-show">
-                                                        <img src="../static/images/bg.jpg" alt="摄像头1" width="350"
-                                                            height="150" />
-                                                    </div>
-                                                    <div class="layui-tab-item">
-                                                        <img src="../static/images/bg.jpg" alt="摄像头2" width="350"
-                                                            height="150" />
-                                                    </div>
-                                                    <div class="layui-tab-item">
-                                                        <img src="../static/images/bg.jpg" alt="摄像头3" width="350"
-                                                            height="150" />
-                                                    </div>
-                                                </div>
+                                        <div class="app">
+                                            <div style="display:inline-block;">
+                                                <form>
+                                                    <span>请选择水文气象</span>
+                                                    <select>
+                                                        <option value="">电池电压</option>
+                                                        <option value="">盐度</option>
+                                                        <option value="">溶解氧</option>
+                                                        <option value="">浊度</option>
+                                                        <option value="">ph</option>
+                                                        <option value="">水温</option>
+                                                    </select>
+                                                </form>
                                             </div>
-
+                                        
+                                            <div style="display:inline-block;margin-right:10px;">
+                                                <span>请选择日期</span>
+                                                <input type="date" value="2021-08-01" id="myDate">
+                                            </div>
                                         </div>
-                                    </div>
+                                        
+                                        <div id="echarts-records" style="width: 100%; min-height: 250px;">
+                                            <!-- Placeholder for ECharts -->
+                                        </div>
+                                        
+                                        <div style="text-align: center;">
+                                            <button type="button" class="layui-btn layui-bg-blue" onclick="changeData('近1天')">近1天</button>
+                                            <button type="button" class="layui-btn layui-bg-orange" onclick="changeData('近1周')">近1周</button>
+                                            <button type="button" class="layui-btn layui-bg-red" onclick="changeData('近1月')">近1月</button>
+                                            <button type="button" class="layui-btn layui-bg-purple" onclick="changeData('近1年')">近1年</button>
+                                        </div>
+                                    </div>  
                                 </div>
                             </div>
                         </div>
                         {% comment %} 水文模块 {% endcomment %}
-                        <div class="layui-col-md6">
+                        <div class="layui-col-md4">
                             <div class="layui-card">
                                 <div class="layui-card-header"><i class="fa fa-credit-card icon icon-blue"></i>水文数据
                                 </div>
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
-                                        <div class="layui-row layui-col-space10 layuimini-qiuck">
+                                        <div class="layui-row layui-col-space5 layuimini-qiuck">
                                             <style>
                                                 progress {
-                                                    width: 200px;
+                                                    width: 120px;
                                                     align: center;
                                                 }
                                             </style>
                                             <div>
-                                                <span>电池电压(V)：</span>
+                                                <div><span>电池电压(V)：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>盐度(%)：</span>
+                                                <div><span>盐度(%)：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>溶解氧(mg/L)：</span>
+                                                <div><span>溶解氧(mg/L)：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>浊度(NTU)：</span>
+                                                <div><span>浊度(NTU)：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>ph：</span>
+                                                <div><span>ph：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
                                             <div>
-                                                <span>水温('C)：</span>
+                                                <div><span>水温('C)：</span></div>
                                                 <progress max="200" value="150"></progress>
                                                 <span> 10.4</span>
                                             </div>
@@ -239,41 +247,53 @@
                                 </div>
                             </div>
                         </div>
-                        {% comment %} 历史记录模块 {% endcomment %}
+                        {% comment %} 视频模块 {% endcomment %}
                         <div class="layui-col-md12">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
-
-                                <div class="app">
-                                    <div style="display:inline-block;">
-                                        <form>
-                                            <span>请选择水文气象</span>
-                                            <select>
-                                                <option value="">电池电压</option>
-                                                <option value="">盐度</option>
-                                                <option value="">溶解氧</option>
-                                                <option value="">浊度</option>
-                                                <option value="">ph</option>
-                                                <option value="">水温</option>
-                                            </select>
-                                        </form>
+                                <div class="layui-card-header"><i class="fa fa-warning icon"></i>视频监控</div>
+                               
+                                <div class="layui-row layui-col-space10">
+                                    <div class="layui-tab">
+                                        <ul class="layui-tab-title">
+                                            <li class="layui-this">摄像头1</li>
+                                            <li>摄像头2</li>
+                                            <li>摄像头3</li>
+                                            <li id="uploadTab" style="float: right;">
+                                                <button type="button" class="layui-btn layui-btn-normal" id="uploadButton">更新信号源</button>
+                                            </li>
+                                        </ul>
+                                       
+                                        <style>
+                                            .centered-video {
+                                                width: 90%;
+                                                display: block;
+                                                margin: 0 auto; /* 居中 */
+                                            }
+                                        </style>
+                                        <div class="layui-tab-content">
+                                            <div class="layui-tab-item layui-show">
+                                                <video id="video1"  class="centered-video" controls>
+                                                    <source type="video/mp4">
+                                                    <p>您的浏览器不支持 HTML5 视频。</p>
+                                                </video>
+                                            </div>
+                                            <div class="layui-tab-item ">
+                                                <video id="video2"  class="centered-video" controls>
+                                                    <source type="video/mp4">
+                                                    <p>您的浏览器不支持 HTML5 视频。</p>
+                                                </video>
+                                            </div>
+                                            <div class="layui-tab-item">
+                                                <video id="video3"  class="centered-video" controls>
+                                                    <source type="video/mp4">
+                                                    <p>您的浏览器不支持 HTML5 视频。</p>
+                                                </video>
+                                            </div>
+                                        </div>                              
                                     </div>
 
-                                    <div style="display:inline-block;margin-left:10px;">
-                                        <span>请选择日期</span>
-                                        <input type="date" value="2021-08-01" id="myDate">
-                                    </div>
                                 </div>
-                                <button type="button" class="layui-btn layui-bg-blue"
-                                    onclick="changeData('近1天')">近1天</button>
-                                <button type="button" class="layui-btn layui-bg-orange"
-                                    onclick="changeData('近1周')">近1周</button>
-                                <button type="button" class="layui-btn layui-bg-red"
-                                    onclick="changeData('近1月')">近1月</button>
-                                <button type="button" class="layui-btn layui-bg-purple"
-                                    onclick="changeData('近1年')">近1年</button>
-                                <div id="echarts-records" style="width: 100%;min-height:500px">
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -409,6 +429,63 @@
     </div>
     <script src="../static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
     <script src="../static/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script>
+        // 在页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否有错误信息
+            var error = '{{ error }}';
+            if (error) {
+                // 如果有错误信息，使用layui的弹出框显示错误信息
+                layui.use('layer', function(){
+                    var layer = layui.layer;
+                    layer.alert(error, {icon: 2});
+                });
+            }
+        });
+    </script>
+    <script>
+        layui.use('layer', function(){
+            var layer = layui.layer;
+    
+            // 点击上传文件按钮时弹出上传框
+            document.getElementById('uploadButton').addEventListener('click', function () {
+                layer.open({
+                    type: 1,
+                    title: '更新信号源',
+                    area: ['500px', '300px'],
+                    content: `
+                    <div style="padding: 20px;">
+                        <form method="post" enctype="multipart/form-data" action="http://127.0.0.1:8000/pic/upload_video">
+                            {% csrf_token %}
+                            <p>选择上传位置：</p>
+                            <input type="radio" id="type1" name="upload_type" value="1" checked>
+                            <label for="type1">摄像头1</label><br>
+                            <input type="radio" id="type2" name="upload_type" value="2">
+                            <label for="type2">摄像头2</label><br>
+                            <input type="radio" id="type3" name="upload_type" value="3">
+                            <label for="type3">摄像头3</label><br><br>
+                            <input type="file" id="video_file" name="video_file"><br><br>
+                            <button type="submit">修改信号源</button>
+                        </form>
+                    </div>
+                    `
+                });
+            });
+        });
+    </script>
+    <script>
+        function updateVideoSource(videoId, src) {
+            var video = document.getElementById(videoId);
+            var source = video.querySelector('source');
+            var timestamp = new Date().getTime();
+            source.src = src + "?v=" + timestamp;
+            video.load();
+        }
+    
+        updateVideoSource('video1', '../static/video/1.mp4');
+        updateVideoSource('video2', '../static/video/2.mp4');
+        updateVideoSource('video3', '../static/video/3.mp4');
+    </script>
     <script>
         function changeData(dataName) {
             var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');

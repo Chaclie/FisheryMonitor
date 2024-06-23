@@ -52,4 +52,7 @@ urlpatterns = [
     path('fish/get_top_info', get_top_info),
     path('fish/writeDB', writeDB),
     path('fish/predict', fish_predict),
+
+    # 视频+图像
+    path('pic/upload_video', views.upload_video),
 ]
