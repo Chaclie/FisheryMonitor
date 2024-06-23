@@ -34,6 +34,10 @@
         .layuimini-notice-extra {position:absolute;top:50%;margin-top:-8px;right:16px;display:inline-block;height:16px;color:#999;}
     </style>
 </head>
+<script>
+    // 服务器端渲染时设置answer变量
+    var answer = "{{answer}}"; // 假设使用的是类似Jinja2的模板引擎，将answer值插入
+</script>
 <body>
 <div class="layuimini-container">
     <div class="layuimini-main">
@@ -42,24 +46,29 @@
                 <div class="layui-row layui-col-space15">
                     <div class="layui-col-md6">
                         <div class="layui-card">
-                            <div class="layui-card-header"><i class="fa fa-warning icon"></i>识别效果</div>
+                            <div class="layui-card-header">
+                                <i class="fa fa-warning icon"></i>原摄像头
+                                <li id="uploadTab" style="float: right;">
+                                    <button type="button" class="layui-btn layui-btn-normal" id="uploadButton">切换信号源</button>
+                                </li>
+                            </div>
                             <div class="layui-card-body">
-                                <div class="images">
-                                <img src="../static/images/data1.jpg"  width="350" height="180" >
-                                </div>
+                                <video id="video1" style="width: 100%;"  controls>
+                                    <source type="video/mp4">
+                                    <p>您的浏览器不支持 HTML5 视频。</p>
+                                </video>
                             </div>
                         </div>
                     </div>
                     <div class="layui-col-md6">
                         <div class="layui-card">
-                            <br>
-                            左目镜头
-                            <br>
-                            <img src="../static/images/data2.jpg"  width="350" height="100" >
-                            <br>
-                            右目镜头
-                            <br>
-                            <img src="../static/images/data3.jpg"  width="350" height="100" >
+                            <div class="layui-card-header"><i class="fa fa-credit-card icon"></i>识别效果</div>
+                            <div class="layui-card-body">
+                                <video id="video2" style="width: 100%;"  controls>
+                                    <source type="video/mp4">
+                                    <p>您的浏览器不支持 HTML5 视频。</p>
+                                </video>
+                            </div>
                         </div>
 
                     </div>
@@ -91,7 +100,8 @@
                                                             <h5>鱼种</h5>
                                                         </div>
                                                         <div class="panel-content">
-                                                            <h1 class="no-margins">moonfish</h1>
+                                                            
+                                                            <h1 id="dynamicText" class="no-margins">moonfish</h1>
                                                         
                                                         </div>
                                                     </div>
@@ -149,9 +159,9 @@
                                                 </a>
                                             </div>
                                             <div class="layui-col-xs6 layuimini-qiuck-module">
-                                                <a href="javascript:;" layuimini-content-href="templates/404.html" data-title="患病情况" data-icon="fa fa-hourglass-end">
+                                                <a id = "targetRecognitionBtn" href="http://127.0.0.1:8000/pic/analysis_video" layuimini-content-href="templates/404.html" data-title="患病情况" data-icon="fa fa-hourglass-end">
                                                     <i class="fa fa-hourglass-end"></i>
-                                                    <cite>患病情况</cite>
+                                                    <cite>鱼类识别</cite>
                                                 </a>
                                             </div>
                                             <div class="layui-col-xs6 layuimini-qiuck-module">
@@ -294,6 +304,64 @@
 <script src="../static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script src="../static/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
 <script>
+    // 页面加载后根据answer值修改内容
+    document.addEventListener("DOMContentLoaded", function() {
+        var dynamicTextElement = document.getElementById('dynamicText');
+        if (answer && answer.trim() !== '') {
+            dynamicTextElement.textContent = answer;
+        } else {
+            dynamicTextElement.textContent = 'null';
+        }
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var targetRecognitionBtn = document.getElementById('targetRecognitionBtn');
+    
+    targetRecognitionBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // 阻止默认链接跳转行为
+        
+        // 显示处理中的弹窗
+        var loadingModal = document.createElement('div');
+        loadingModal.id = 'loadingModal';
+        loadingModal.style.position = 'fixed';
+        loadingModal.style.top = 0;
+        loadingModal.style.left = 0;
+        loadingModal.style.width = '100%';
+        loadingModal.style.height = '100%';
+        loadingModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        loadingModal.style.display = 'flex';
+        loadingModal.style.justifyContent = 'center';
+        loadingModal.style.alignItems = 'center';
+        loadingModal.innerHTML = '<div class="loader">加载中...</div>';
+        document.body.appendChild(loadingModal);
+        
+        // 发起异步请求
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', "http://127.0.0.1:8000/pic/analysis_video", true); // 使用data-url属性作为请求地址
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // 请求成功，隐藏弹窗并根据需求处理响应
+                document.body.removeChild(loadingModal);
+                alert('处理成功！');
+                // 这里可以根据实际情况使用响应数据，比如更新页面内容
+                location.reload()
+            } else {
+                // 请求失败，隐藏弹窗并提示错误
+                document.body.removeChild(loadingModal);
+                alert('处理时发生错误！');
+            }
+        };
+        xhr.onerror = function() {
+            // 网络错误，隐藏弹窗并提示
+            document.body.removeChild(loadingModal);
+            alert('网络错误，请重试！');
+        };
+        xhr.send();
+    });
+});
+</script>
+<script>
     function updateVideoSource(videoId, src) {
         var video = document.getElementById(videoId);
         var source = video.querySelector('source');
@@ -302,7 +370,36 @@
         video.load();
     }
 
-    updateVideoSource('video1', '../static/video/test.mp4');
+    updateVideoSource('video1', '../static/video/test/test.mp4');
+    updateVideoSource('video2', '../static/video/answer/test.mp4');
+</script>
+<script>
+    layui.use('layer', function(){
+        var layer = layui.layer;
+
+        // 点击上传文件按钮时弹出上传框
+        document.getElementById('uploadButton').addEventListener('click', function () {
+            layer.open({
+                type: 1,
+                title: '切换信号源',
+                area: ['500px', '300px'],
+                content: `
+                <div style="padding: 20px;">
+                    <form method="post" enctype="multipart/form-data" action="http://127.0.0.1:8000/pic/switch_video">
+                        <p>选择需要检测的信号源：</p>
+                        <input type="radio" id="type1" name="upload_type" value="1" checked>
+                        <label for="type1">摄像头1</label><br>
+                        <input type="radio" id="type2" name="upload_type" value="2">
+                        <label for="type2">摄像头2</label><br>
+                        <input type="radio" id="type3" name="upload_type" value="3">
+                        <label for="type3">摄像头3</label><br><br>
+                        <button type="submit">修改信号源</button>
+                    </form>
+                </div>
+                `
+            });
+        });
+    });
 </script>
 <script>
     layui.use(['layer', 'miniTab','echarts'], function () {

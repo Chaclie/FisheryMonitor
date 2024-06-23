@@ -8,6 +8,7 @@ from model.fish.LSTM_fish import LSTMModel
 import re,json,os
 import pandas as pd
 import numpy as np
+import model.YOLO.detect as YOLO
 
 # Create your views here.
 def Index(request):
@@ -154,7 +155,9 @@ def backend(request):
 def table(request):
     return render(request, 'table.html')
 
-# 用户数据
+def map(request):
+    return render(request, 'map.html')
+
 def get_data(request):
     users = list(User.objects.all().values())  # 获取所有用户数据，并转换为字典列表
     return JsonResponse({"code": 0, "data": users})
@@ -194,8 +197,8 @@ def getTOP5(request):
         dates = curr_group['Date'].unique()
         tuples.append((group_name, len(dates)))
     tuples.sort(key=lambda x: x[1], reverse=True)
-    tuples = tuples[:30]
-    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(30)]
+    tuples = tuples[:5]
+    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(5)]
     return JsonResponse(top5, safe=False)
 
 def get_fish_change(request):
@@ -340,3 +343,33 @@ def upload_video(request):
     else :
         # 处理 GET 请求
         return render(request, 'MainInfo.html', {'error': '未上传视频！'})
+    
+
+def switch_video(request):
+    if request.method == 'POST' :
+        upload_type = request.POST.get('upload_type', 'unknown')
+
+
+        # 构造路径
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        upload_dir  = os.path.join(BASE_DIR, "neo\static\\video\\")
+        upload_to_dir  = os.path.join(BASE_DIR, "neo\static\\video\\test\\")
+        src_name = f'{upload_type}.mp4'
+        vid_name = f'test.mp4'
+
+        # 从源目录复制到目标目录
+        from shutil import copy2
+        copy2(os.path.join(upload_dir,  src_name), os.path.join(upload_to_dir,  vid_name))
+
+        return render(request, 'AIcenter.html')
+    else :
+        # 处理 GET 请求
+        return render(request, 'AIcenter.html', {'error': '未选择视频！'})
+    
+
+def analysis_video(request):
+    # type为鱼的英文名，可以根据字典映射到id
+    type = YOLO.detect()
+    # 打印来看已经可以正常输出Carcharodon_carcharias，但是返回不正常呢，大家测试的时候可以直接设置type等于巴拉巴拉来看看
+    print(type)
+    return render(request, 'AIcenter.html', {'answer': {type}})

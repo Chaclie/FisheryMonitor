@@ -34,6 +34,8 @@ urlpatterns = [
     path('system/admincontrol.html', views.AdminControl),
     path('system/forget.html',views.forget),
     path('system/smart_QA.html', views.smart_qa),
+    path('system/map.html', views.map),
+
 
     # 注册登录
     path('',login),
@@ -59,4 +61,8 @@ urlpatterns = [
 
     # 视频+图像
     path('pic/upload_video', views.upload_video),
+    path('pic/switch_video', views.switch_video),
+    path('pic/analysis_video', views.analysis_video),
+
+
 ]
