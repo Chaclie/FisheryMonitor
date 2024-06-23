@@ -214,65 +214,34 @@
                                             </style>
                                             
                                             <div>
-<<<<<<< HEAD
-                                                <div><span>电池电压(V)：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-                                            </div>
-                                            <div>
-                                                <div><span>盐度(%)：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-                                            </div>
-                                            <div>
-                                                <div><span>溶解氧(mg/L)：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-                                            </div>
-                                            <div>
-                                                <div><span>浊度(NTU)：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-                                            </div>
-                                            <div>
-                                                <div><span>ph：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-                                            </div>
-                                            <div>
-                                                <div><span>水温('C)：</span></div>
-                                                <progress max="200" value="150"></progress>
-                                                <span> 10.4</span>
-=======
                                                 <span>水温(℃):</span>
-                                                <progress max="40" value="{{AvgData.temp}}"></progress>
-                                                <span>{{AvgData.temp}}</span>
+                                                <progress max="40" value="{{data.AvgData.temp}}"></progress>
+                                                <span>{{data.AvgData.temp}}</span>
                                             </div>
                                             <div>
                                                 <span>pH:</span>
-                                                <progress max="15" value="{{AvgData.pH}}"></progress>
-                                                <span>{{AvgData.pH}}</span>
+                                                <progress max="15" value="{{data.AvgData.pH}}"></progress>
+                                                <span>{{data.AvgData.pH}}</span>
                                             </div>
                                             <div>
                                                 <span>溶解氧(mg/L):</span>
-                                                <progress max="20" value="{{AvgData.Ox}}"></progress>
-                                                <span>{{AvgData.Ox}}</span>
+                                                <progress max="20" value="{{data.AvgData.Ox}}"></progress>
+                                                <span>{{data.AvgData.Ox}}</span>
                                             </div>
                                             <div>
                                                 <span>导电率(μS/cm):</span>
-                                                <progress max="3000" value="{{AvgData.Dao}}"></progress>
-                                                <span>{{AvgData.Dao}}</span>
+                                                <progress max="3000" value="{{data.AvgData.Dao}}"></progress>
+                                                <span>{{data.AvgData.Dao}}</span>
                                             </div>
                                             <div>
                                                 <span>浊度(NTU):</span>
-                                                <progress max="60" value="{{AvgData.Zhuodu}}"></progress>
-                                                <span> {{AvgData.Zhuodu}}</span>
+                                                <progress max="60" value="{{data.AvgData.Zhuodu}}"></progress>
+                                                <span> {{data.AvgData.Zhuodu}}</span>
                                             </div>
                                             <div>
                                                 <span>盐度(mg/L):</span>
-                                                <progress max="10" value="{{AvgData.Yandu}}"></progress>
-                                                <span> {{AvgData.Yandu}}</span>
->>>>>>> 10cfee6152b4581653e61a1e53fcc50667755a46
+                                                <progress max="10" value="{{data.AvgData.Yandu}}"></progress>
+                                                <span> {{data.AvgData.Yandu}}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -282,50 +251,6 @@
                         {% comment %} 视频模块 {% endcomment %}
                         <div class="layui-col-md12">
                             <div class="layui-card">
-<<<<<<< HEAD
-                                <div class="layui-card-header"><i class="fa fa-warning icon"></i>视频监控</div>
-                               
-                                <div class="layui-row layui-col-space10">
-                                    <div class="layui-tab">
-                                        <ul class="layui-tab-title">
-                                            <li class="layui-this">摄像头1</li>
-                                            <li>摄像头2</li>
-                                            <li>摄像头3</li>
-                                            <li id="uploadTab" style="float: right;">
-                                                <button type="button" class="layui-btn layui-btn-normal" id="uploadButton">更新信号源</button>
-                                            </li>
-                                        </ul>
-                                       
-                                        <style>
-                                            .centered-video {
-                                                width: 90%;
-                                                display: block;
-                                                margin: 0 auto; /* 居中 */
-                                            }
-                                        </style>
-                                        <div class="layui-tab-content">
-                                            <div class="layui-tab-item layui-show">
-                                                <video id="video1"  class="centered-video" controls>
-                                                    <source type="video/mp4">
-                                                    <p>您的浏览器不支持 HTML5 视频。</p>
-                                                </video>
-                                            </div>
-                                            <div class="layui-tab-item ">
-                                                <video id="video2"  class="centered-video" controls>
-                                                    <source type="video/mp4">
-                                                    <p>您的浏览器不支持 HTML5 视频。</p>
-                                                </video>
-                                            </div>
-                                            <div class="layui-tab-item">
-                                                <video id="video3"  class="centered-video" controls>
-                                                    <source type="video/mp4">
-                                                    <p>您的浏览器不支持 HTML5 视频。</p>
-                                                </video>
-                                            </div>
-                                        </div>                              
-                                    </div>
-
-=======
                                 <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
                                 <button type="button" class="layui-btn layui-bg-green"
                                     onclick="changeData('近1天')">总体</button>
@@ -336,7 +261,6 @@
                                 <button type="button" class="layui-btn layui-bg-red"
                                     onclick="changeData('近1月')">近1月</button>
                                 <div id="echarts-records" style="width: 100%;min-height:500px">
->>>>>>> 10cfee6152b4581653e61a1e53fcc50667755a46
                                 </div>
                                 
                             </div>

@@ -3,9 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from GroupWork import settings
-from neo.models import User,FishInfo
+from neo.models import User,FishInfo,WaterInfo
 from model.fish.LSTM_fish import LSTMModel
-import model.water.dataFunction as waterModel
 import re,json,os
 import pandas as pd
 import numpy as np
@@ -33,20 +32,9 @@ def system(request):
     # return render(request, 'system.html')
 
 def MainInfo(request):
-    #所有水文数据
-    AllData = waterModel.allVal()
-    #表所用的水文数据，例如FormData[近一天][temp][0]
-    FormData = {"All":waterModel.formVal("All"),"Day":waterModel.formVal("近1天"),"Week":waterModel.formVal("近1周"),"Month":waterModel.formVal("近1月")}
-    #平均数据
-    AvgData = waterModel.avgVal()
-
-    data = {
-        "AllData":AllData,
-        "FormData":FormData,
-        "AvgData":AvgData
-    }
-
-    return render(request, 'MainInfo.html',data)
+    res=get_water_statistics(request)
+    data=json.loads(res.content)
+    return render(request,'MainInfo.html',{'data':data})
 
 def Underwater(request):
     res = get_fish_statistics(request)
@@ -77,7 +65,6 @@ def AIcenter(request):
 
 def AdminControl(request):
     return render(request, 'admincontrol.html')
-
 
 # 注册登录
 def login(request):
@@ -167,6 +154,7 @@ def backend(request):
 def table(request):
     return render(request, 'table.html')
 
+# 用户数据
 def get_data(request):
     users = list(User.objects.all().values())  # 获取所有用户数据，并转换为字典列表
     return JsonResponse({"code": 0, "data": users})
@@ -174,7 +162,7 @@ def get_data(request):
 def smart_qa(request):
     return render(request, 'smart_QA.html')
 
-# 获取统计信息
+# 获取鱼类统计信息
 def get_fish_statistics(request):
     # 获取当前绝对路径
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -226,7 +214,7 @@ def get_top_info(request):
         data = json.load(f)
     return JsonResponse(data,safe=False)
 
-def writeDB(request):
+def writ1eDB(request):
     FishInfo.objects.all().delete() # 防止重复写入
     usecols = ['Year','Date', 'Latin_Name', 'Count', 'Mean_Length', 'Mean_Weight']
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -258,9 +246,82 @@ def fish_predict(request):
         predictions = model.api(data,DATA_PATH=os.path.join(BASE_DIR, "model/data/fish/processed/fish_final.csv"))
         return redirect(f'http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}')
     
+# 获取水质统计信息
+# '''
+#     Date:日期
+#     temp:温度
+#     pH:pH值
+#     Ox:含氧量
+#     Dao:导电率
+#     Zhuodu:浊度
+#     Yandu:盐度
+# '''
+def get_water_statistics(request):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR,"model/data/water/processed")
+    data = pd.read_csv(os.path.join(path,'water_cleaned.csv'),index_col=0)
+    # 获取统计图信息
+    FormData={}
+    for tag in ['Day','Week','Month','All']:
+        temp,pH,Ox,Dao,Zhuodu,Yandu=[],[],[],[],[],[]
+        
+        step=0
+        match tag:
+            case 'Day':
+                step=30
+            case 'Week':
+                step=70
+            case 'Month':
+                step=140
+            case 'All':
+                step=300
+
+        for i in range(7):
+            temp.append(round(data['temp'].head((i+1)*step).mean(),3))
+            pH.append(round(data['pH'].head((i+1)*step).mean(),3))
+            Ox.append(round(data['Ox'].head((i+1)*step).mean(),3))
+            Dao.append(round(data['Dao'].head((i+1)*step).mean(),3))
+            Zhuodu.append(round(data['Zhuodu'].head((i+1)*step).mean(),3))
+            Yandu.append(round(data['Yandu'].head((i+1)*step).mean(),3))
+        
+        match tag:
+            case 'Day':
+                Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+                FormData[tag]=Day
+            case 'Week':
+                Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+                FormData[tag]=Week
+            case 'Month':
+                Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+                FormData[tag]=Month
+            case 'All':
+                All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+                FormData[tag]=All
+
+    # 获取表格数据
+    AvgData={}
+    for tag in ['temp','pH','Ox','Dao','Zhuodu','Yandu']:
+        AvgData[tag]=round(data[tag].mean(),3)
+
+    print(FormData)
+    print(AvgData)
+
+    return JsonResponse({'FormData':FormData,'AvgData':AvgData})
+
+
+# 导入水质数据到数据库
+def writ2eDB(request):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/water/processed")
+    data = pd.read_csv(os.path.join(path,"water_cleaned.csv"))
+
+    WaterInfo.objects.all().delete()
+    for i in range(len(data)):
+        row = data.iloc[i]
+        WaterInfo.objects.create(Date=row['Date'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'])
+    return HttpResponse("success")
 
 # 从这里开始是视频和图像处理：
-
 def upload_video(request):
     if request.method == 'POST' and request.FILES.get('video_file'):
         video_file = request.FILES['video_file']

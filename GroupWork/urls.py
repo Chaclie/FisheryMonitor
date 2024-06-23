@@ -50,8 +50,12 @@ urlpatterns = [
     path('fish/getTOP5', getTOP5),
     path('fish/get_fish_change', get_fish_change),
     path('fish/get_top_info', get_top_info),
-    path('fish/writeDB', writeDB),
+    path('fish/writeDB', writ1eDB),
     path('fish/predict', fish_predict),
+
+    # 水质 
+    path('water/get_water_statistics',get_water_statistics),
+    path('water/writeDB', writ2eDB),
 
     # 视频+图像
     path('pic/upload_video', views.upload_video),

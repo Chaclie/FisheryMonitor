@@ -30,3 +30,23 @@ class FishInfo(models.Model):
     mean_weight = models.FloatField()
 
 
+'''
+@ Date:日期
+@ temp:温度
+@ pH:pH值
+@ Ox:含氧量
+@ Dao:导电率
+@ Zhuodu:浊度
+@ Yandu:盐度
+'''
+class WaterInfo(models.Model):
+    Date = models.IntegerField()
+    temp = models.FloatField()
+    pH = models.FloatField()
+    Ox = models.FloatField()
+    Dao = models.FloatField()
+    Zhuodu = models.FloatField()
+    Yandu = models.FloatField()
+
+
+

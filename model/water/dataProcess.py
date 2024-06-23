@@ -1,37 +1,40 @@
 import pandas as pd
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import session, sessionmaker
-from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
+import numpy as np
+import os,json
 
 DATA_DIR = '../data/water'
+OUT_DIR = '../data/water/processed'
 
-# 提取xlsx中的数据数据库的water表中
-def extract_waterdata():
-    file_name = '/'.join([DATA_DIR,'水质数据.xlsx']) 
-    df = pd.read_excel(file_name, engine='openpyxl')
-    engine = sqlalchemy.create_engine('mysql+pymysql://root:root@127.0.0.1:3306/myweb')
-    table_name = 'water'
-    df.to_sql(table_name, engine, if_exists='replace', index=False)
+'''
+    Date:日期
+    temp:温度
+    pH:pH值
+    Ox:含氧量
+    Dao:导电率
+    Zhuodu:浊度
+    Yandu:盐度
+'''
 
-#添加设备运行状态数据表device
-def extract_devicedata():
-    engine = sqlalchemy.create_engine('mysql+pymysql://root:root@127.0.0.1:3306/myweb')
-    metadata =MetaData()
-    
-    devices = Table('device', metadata,
-                  Column('id', Integer, primary_key=True),
-                  Column('name', String(20)),
-                  Column('situation', String(20)),
-                  )
-    metadata.create_all(engine)
+file = '../data/water/水质数据.xlsx'
 
-    #每次添加一组8个设备状态，用于模拟实时的设备状态
+# 数据导入
+def extract_data():
+    df = pd.read_excel(file, names = ['Date', 'temp', 'pH', 'Ox', 'Dao', 'Zhuodu', 'Yandu'], usecols = [0, 2, 3, 4, 5, 6, 7])
+    df.to_csv(os.path.join(OUT_DIR, 'water.csv'))
 
+# 数据处理
+def clean_data():
+    df=pd.read_csv(os.path.join(OUT_DIR, 'water.csv'))
+    #删除空项
+    df=df.dropna()
+    #删除非法项
+    for i in ['Date', 'temp', 'pH', 'Ox', 'Dao', 'Zhuodu', 'Yandu']:
+        df=df.drop(df[df[i]=='--'].index)
+    #类型转换
+    df=df.astype('float64')
+    #保存
+    df.to_csv(os.path.join(OUT_DIR, 'water_cleaned.csv'))
 
-
-
-
-
-extract_waterdata()
-extract_devicedata()
+if __name__ == '__main__':
+    extract_data()
+    clean_data()
