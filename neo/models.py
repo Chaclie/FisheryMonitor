@@ -38,6 +38,9 @@ class FishInfo(models.Model):
 @ Dao:导电率
 @ Zhuodu:浊度
 @ Yandu:盐度
+@ Andan:氨氮
+@ Zonglin:总磷
+@ Zongdan:总氮
 '''
 class WaterInfo(models.Model):
     Date = models.IntegerField()
@@ -47,6 +50,9 @@ class WaterInfo(models.Model):
     Dao = models.FloatField()
     Zhuodu = models.FloatField()
     Yandu = models.FloatField()
+    Andan = models.FloatField()
+    Zonglin = models.FloatField()
+    Zongdan = models.FloatField()
 
 
 
