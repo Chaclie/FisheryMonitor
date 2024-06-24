@@ -156,11 +156,11 @@
             <div class="layui-row layui-col-space15">
                 <div class="layui-col-md8">
                     <div class="layui-row layui-col-space15">
-                        {% comment %} 历史记录模块 {% endcomment %}
+                        {% comment %} 视频模块 {% endcomment %}
 
                         <div class="layui-col-md8">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
+                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>监控视频</div>
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
                                         <div class="app">
@@ -198,10 +198,10 @@
                                 </div>
                             </div>
                         </div>
-                        {% comment %} 水文模块 {% endcomment %}
+                        {% comment %} 实时水文模块 {% endcomment %}
                         <div class="layui-col-md4">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-credit-card icon icon-blue"></i>水文数据
+                                <div class="layui-card-header"><i class="fa fa-credit-card icon icon-blue"></i>水文实时数据
                                 </div>
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
@@ -248,10 +248,10 @@
                                 </div>
                             </div>
                         </div>
-                        {% comment %} 视频模块 {% endcomment %}
+                        {% comment %} 历史水文模块 {% endcomment %}
                         <div class="layui-col-md12">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>历史记录</div>
+                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>水文历史数据</div>
                                 <button type="button" class="layui-btn layui-bg-green"
                                     onclick="changeData('近1天')">总体</button>
                                 <button type="button" class="layui-btn layui-bg-blue"
@@ -455,6 +455,7 @@
         updateVideoSource('video2', '../static/video/2.mp4');
         updateVideoSource('video3', '../static/video/3.mp4');
     </script>
+    {% comment %} 曲线图数据更新 {% endcomment %}
     <script>
         function changeData(dataName) {
             var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');

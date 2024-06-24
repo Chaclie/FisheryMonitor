@@ -308,7 +308,6 @@ def get_water_statistics(request):
 
     return JsonResponse({'FormData':FormData,'AvgData':AvgData})
 
-
 # 导入水质数据到数据库
 def writ2eDB(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
