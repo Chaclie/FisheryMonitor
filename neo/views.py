@@ -258,6 +258,9 @@ def fish_predict(request):
 #     Dao:导电率
 #     Zhuodu:浊度
 #     Yandu:盐度
+#     Andan:氨氮(暂不用)
+#     Zonglin:总磷(暂不用)
+#     Zongdan:总氮(暂不用)
 # '''
 def get_water_statistics(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -306,9 +309,6 @@ def get_water_statistics(request):
     for tag in ['temp','pH','Ox','Dao','Zhuodu','Yandu']:
         AvgData[tag]=round(data[tag].mean(),3)
 
-    print(FormData)
-    print(AvgData)
-
     return JsonResponse({'FormData':FormData,'AvgData':AvgData})
 
 # 导入水质数据到数据库
@@ -320,7 +320,7 @@ def writ2eDB(request):
     WaterInfo.objects.all().delete()
     for i in range(len(data)):
         row = data.iloc[i]
-        WaterInfo.objects.create(Date=row['Date'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'])
+        WaterInfo.objects.create(Date=row['Date'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'],Andan=row['Andan'],Zonglin=row['Zonglin'],Zongdan=row['Zongdan'])
     return HttpResponse("success")
 
 # 从这里开始是视频和图像处理：
