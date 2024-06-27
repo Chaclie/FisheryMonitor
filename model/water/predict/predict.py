@@ -118,12 +118,10 @@ def model_predict(data, count, path = "./model/water/predict/model.pth", in_dim=
     pred = output.data.max(1)[1]
 
     res = 0
-    num = 0
 
     for i in range(5):
-        if num<count[i]:
+        if count[i] != 0:
             res = i
-            num = count[i]
 
     return pred, str(res)
         
