@@ -94,6 +94,13 @@
                     </div>
                     {% endfor %}
                 </div>
+                <hr>
+                <a href="http://localhost:8000/fishbaike/remove?name={{ fish_info.name }}">
+                    <button type="button" class="layui-btn layui-btn-normal">删除该鱼类</button>
+                </a>
+                <a href="http://localhost:8000/fishbaike/modify?name={{ fish_info.name }}">
+                    <button type="button" class="layui-btn layui-btn-normal">编辑该鱼类</button>
+                </a>
             </div>
         </div>
     </div>

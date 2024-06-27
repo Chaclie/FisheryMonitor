@@ -789,6 +789,86 @@ def fishbaike_add(request: HttpRequest):
         return redirect("http://127.0.0.1:8000/system/AIcenter.html")
 
 
+def fishbaike_remove(request: HttpRequest):
+    if request.method == "GET":
+        name = request.GET.get("name")
+        filter_result = FishBaike.objects.filter(name=name)
+        if len(filter_result) == 0:
+            return HttpResponse("未找到该鱼类({})的信息。".format(name))
+        for fishinfo in filter_result:
+            fishinfo.delete()
+        return HttpResponse("成功删除所有({})的信息。".format(name))
+    return HttpResponse("访问方式错误，请使用GET请求访问。")
+
+
+def fishbaike_modify(request: HttpRequest):
+    if request.method == "GET":
+        name = request.GET.get("name")
+        filter_result = FishBaike.objects.filter(name=name)
+        if len(filter_result) == 0:
+            return HttpResponse("未找到该鱼类({})的信息。".format(name))
+        if len(filter_result) > 1:
+            return HttpResponse(
+                "数据库中存在多个名为{}的鱼类，请联系管理员解决。".format(name)
+            )
+        fishbaike = filter_result[0]
+        return render(
+            request,
+            "fishbaike_modify.html",
+            {
+                "fishinfo": {
+                    "name": fishbaike.name,
+                    "alias": fishbaike.alias,
+                    "distribution": fishbaike.distribution,
+                    "food": fishbaike.food,
+                    "appearance": fishbaike.appearance,
+                    "brief_intro": fishbaike.brief_intro,
+                }
+            },
+        )
+    else:
+        name = request.POST.get("name")
+        filter_result = FishBaike.objects.filter(name=name)
+        if len(filter_result) == 0:
+            return HttpResponse("未找到该鱼类({})的信息。".format(name))
+        if len(filter_result) > 1:
+            return HttpResponse(
+                "数据库中存在多个名为{}的鱼类，请联系管理员解决。".format(name)
+            )
+        print(request.POST.get("distribution"))
+        fishbaike = filter_result[0]
+        fishbaike.alias = request.POST.get("alias")
+        fishbaike.distribution = request.POST.get("distribution")
+        fishbaike.food = request.POST.get("food")
+        fishbaike.appearance = request.POST.get("appearance")
+        fishbaike.brief_intro = request.POST.get("brief_intro")
+        fishbaike.save()
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        RELA_DIR = "model/data/fish/baike"
+        baike_dir = os.path.join(BASE_DIR, RELA_DIR)
+        all_pics = os.listdir(os.path.join(baike_dir, "pics"))
+        images = [
+            settings.STATIC_URL + "fish/baike/pics/" + pic
+            for pic in all_pics
+            if pic.startswith(name)
+        ]
+        return render(
+            request,
+            "fishbaike_detail.html",
+            {
+                "fish_info": {
+                    "name": fishbaike.name,
+                    "alias": fishbaike.alias,
+                    "distribution": fishbaike.distribution,
+                    "food": fishbaike.food,
+                    "appearance": fishbaike.appearance.split("\n"),
+                    "brief_intro": fishbaike.brief_intro.split("\n"),
+                    "images": images,
+                }
+            },
+        )
+
+
 def fishbaike_search(request: HttpRequest):
     if request.method == "GET":
         name = request.GET.get("name")
