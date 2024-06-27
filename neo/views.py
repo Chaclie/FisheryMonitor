@@ -8,7 +8,7 @@ from model.fish.LSTM_fish import LSTMModel
 import re,json,os
 import pandas as pd
 import numpy as np
-import model.YOLO.detect as YOLO
+# import model.YOLO.detect as YOLO
 
 # Create your views here.
 def Index(request):
@@ -35,6 +35,7 @@ def system(request):
 def MainInfo(request):
     res=get_water_statistics(request)
     data=json.loads(res.content)
+    # print(data[0])
     return render(request,'MainInfo.html',{'data':data})
 
 def Underwater(request):
@@ -215,6 +216,8 @@ def get_top_info(request):
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
     with open(os.path.join(path,'top_info.json'),'r') as f:
         data = json.load(f)
+    # print(type(data))
+    # print(data[0])
     return JsonResponse(data,safe=False)
 
 def writ1eDB(request):
@@ -272,15 +275,15 @@ def get_water_statistics(request):
         temp,pH,Ox,Dao,Zhuodu,Yandu=[],[],[],[],[],[]
         
         step=0
-        match tag:
-            case 'Day':
-                step=30
-            case 'Week':
-                step=70
-            case 'Month':
-                step=140
-            case 'All':
-                step=300
+
+        if tag == 'All':
+            step=300
+        if tag == 'Month':
+            step=140
+        if tag == 'Week':
+            step=70
+        if tag == 'Day':
+            step=30
 
         for i in range(7):
             temp.append(round(data['temp'].head((i+1)*step).mean(),3))
@@ -290,19 +293,18 @@ def get_water_statistics(request):
             Zhuodu.append(round(data['Zhuodu'].head((i+1)*step).mean(),3))
             Yandu.append(round(data['Yandu'].head((i+1)*step).mean(),3))
         
-        match tag:
-            case 'Day':
-                Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-                FormData[tag]=Day
-            case 'Week':
-                Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-                FormData[tag]=Week
-            case 'Month':
-                Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-                FormData[tag]=Month
-            case 'All':
-                All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-                FormData[tag]=All
+        if tag == 'Day':
+            Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Day
+        if tag == 'Week':
+            Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Week
+        if tag == 'Month':
+            Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Month
+        if tag == 'All':
+            All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=All
 
     # 获取表格数据
     AvgData={}
@@ -310,6 +312,56 @@ def get_water_statistics(request):
         AvgData[tag]=round(data[tag].mean(),3)
 
     return JsonResponse({'FormData':FormData,'AvgData':AvgData})
+
+def get_water_info(request):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR,"model/data/water/processed")
+    data = pd.read_csv(os.path.join(path,'water_cleaned.csv'),index_col=0)
+
+    FormData={}
+    for tag in ['Day','Week','Month','All']:
+        temp,pH,Ox,Dao,Zhuodu,Yandu=[],[],[],[],[],[]
+        
+        step=0
+
+        if tag == 'All':
+            step=300
+        if tag == 'Month':
+            step=140
+        if tag == 'Week':
+            step=70
+        if tag == 'Day':
+            step=30
+
+        for i in range(7):
+            temp.append(round(data['temp'].head((i+1)*step).mean(),3))
+            pH.append(round(data['pH'].head((i+1)*step).mean(),3))
+            Ox.append(round(data['Ox'].head((i+1)*step).mean(),3))
+            Dao.append(round(data['Dao'].head((i+1)*step).mean(),3))
+            Zhuodu.append(round(data['Zhuodu'].head((i+1)*step).mean(),3))
+            Yandu.append(round(data['Yandu'].head((i+1)*step).mean(),3))
+        
+        if tag == 'Day':
+            Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Day
+        if tag == 'Week':
+            Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Week
+        if tag == 'Month':
+            Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=Month
+        if tag == 'All':
+            All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
+            FormData[tag]=All
+
+    # 获取表格数据
+    data = []
+    data.append(FormData['Day'])
+    data.append(FormData['Week'])
+    data.append(FormData['Month'])
+    data.append(FormData['All'])
+    
+    return JsonResponse(data,safe=False)
 
 # 导入水质数据到数据库
 def writ2eDB(request):

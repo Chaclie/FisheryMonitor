@@ -164,24 +164,7 @@
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
                                         <div class="app">
-                                            <div style="display:inline-block;">
-                                                <form>
-                                                    <span>请选择水文气象</span>
-                                                    <select>
-                                                        <option value="">电池电压</option>
-                                                        <option value="">盐度</option>
-                                                        <option value="">溶解氧</option>
-                                                        <option value="">浊度</option>
-                                                        <option value="">ph</option>
-                                                        <option value="">水温</option>
-                                                    </select>
-                                                </form>
-                                            </div>
-                                        
-                                            <div style="display:inline-block;margin-right:10px;">
-                                                <span>请选择日期</span>
-                                                <input type="date" value="2021-08-01" id="myDate">
-                                            </div>
+
                                         </div>
                                         
                                         <div id="echarts-records" style="width: 100%; min-height: 250px;">
@@ -189,10 +172,10 @@
                                         </div>
                                         
                                         <div style="text-align: center;">
-                                            <button type="button" class="layui-btn layui-bg-blue" onclick="changeData('近1天')">近1天</button>
-                                            <button type="button" class="layui-btn layui-bg-orange" onclick="changeData('近1周')">近1周</button>
-                                            <button type="button" class="layui-btn layui-bg-red" onclick="changeData('近1月')">近1月</button>
-                                            <button type="button" class="layui-btn layui-bg-purple" onclick="changeData('近1年')">近1年</button>
+                                            <button type="button" id="mybtn1" class="layui-btn layui-bg-blue">近1天</button>
+                                            <button type="button" id="mybtn2" class="layui-btn layui-bg-orange">近1周</button>
+                                            <button type="button" id="mybtn3" class="layui-btn layui-bg-red">近1月</button>
+                                            <button type="button" id="mybtn4" class="layui-btn layui-bg-purple">近1年</button>
                                         </div>
                                     </div>  
                                 </div>
@@ -489,18 +472,18 @@
     </script>
     {% comment %} 曲线图数据更新 {% endcomment %}
     <script>
-        function changeData(dataName) {
-            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
-            function randlist(len) {
-                var list = [];
-                var last_data = 0;
-                for (var i = 0; i < len; i++) {
-                    last_data = 0.4 * last_data + 0.6 * Math.random();
-                    list.push(last_data);
-                }
-                return list;
-            }
-            var optionRecords = {
+    
+    layui.use(['layer', 'echarts'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            echarts = layui.echarts;
+    
+    $.ajax({
+            url: "http://127.0.0.1:8000/water/get_water_info",
+            method: "GET",
+            success: function (data) {
+                var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+                var optionRecords = {
                 tooltip: {
                     trigger: 'axis'
                 },
@@ -530,37 +513,208 @@
                     {
                         name: '水温(℃)',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].temp
                     },
                     {
                         name: 'pH',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].pH
                     },
                     {
                         name: '溶解氧(mg/L)',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].Ox
                     },
                     {
                         name: '导电率(μS/cm)',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].Dao
                     },
                     {
                         name: '浊度(NTU)',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].Zhuodu
                     },
                     {
                         name: '盐度(mg/L)',
                         type: 'line',
-                        data: randlist(7)
+                        data: data[0].Yandu
                     }
                 ]
             };
             echartsRecords.setOption(optionRecords);
+
+            var mybtn1 = document.getElementById("mybtn1");
+            mybtn1.onclick = function (){
+                echartsRecords.setOption({
+                    series: [
+                    {
+                        name: '水温(℃)',
+                        type: 'line',
+                        data: data[0].temp
+                    },
+                    {
+                        name: 'pH',
+                        type: 'line',
+                        data: data[0].pH
+                    },
+                    {
+                        name: '溶解氧(mg/L)',
+                        type: 'line',
+                        data: data[0].Ox
+                    },
+                    {
+                        name: '导电率(μS/cm)',
+                        type: 'line',
+                        data: data[0].Dao
+                    },
+                    {
+                        name: '浊度(NTU)',
+                        type: 'line',
+                        data: data[0].Zhuodu
+                    },
+                    {
+                        name: '盐度(mg/L)',
+                        type: 'line',
+                        data: data[0].Yandu
+                    }
+                ]
+                });
+            };
+
+
+            var mybtn2 = document.getElementById("mybtn2");
+            mybtn2.onclick = function (){
+                echartsRecords.setOption({
+                    series: [
+                    {
+                        name: '水温(℃)',
+                        type: 'line',
+                        data: data[1].temp
+                    },
+                    {
+                        name: 'pH',
+                        type: 'line',
+                        data: data[1].pH
+                    },
+                    {
+                        name: '溶解氧(mg/L)',
+                        type: 'line',
+                        data: data[1].Ox
+                    },
+                    {
+                        name: '导电率(μS/cm)',
+                        type: 'line',
+                        data: data[1].Dao
+                    },
+                    {
+                        name: '浊度(NTU)',
+                        type: 'line',
+                        data: data[1].Zhuodu
+                    },
+                    {
+                        name: '盐度(mg/L)',
+                        type: 'line',
+                        data: data[1].Yandu
+                    }
+                ]
+                });
+            };
+
+
+            var mybtn3 = document.getElementById("mybtn3");
+            mybtn3.onclick = function (){
+                echartsRecords.setOption({
+                    series: [
+                    {
+                        name: '水温(℃)',
+                        type: 'line',
+                        data: data[2].temp
+                    },
+                    {
+                        name: 'pH',
+                        type: 'line',
+                        data: data[2].pH
+                    },
+                    {
+                        name: '溶解氧(mg/L)',
+                        type: 'line',
+                        data: data[2].Ox
+                    },
+                    {
+                        name: '导电率(μS/cm)',
+                        type: 'line',
+                        data: data[2].Dao
+                    },
+                    {
+                        name: '浊度(NTU)',
+                        type: 'line',
+                        data: data[2].Zhuodu
+                    },
+                    {
+                        name: '盐度(mg/L)',
+                        type: 'line',
+                        data: data[2].Yandu
+                    }
+                ]
+                });
+            };
+
+            var mybtn4 = document.getElementById("mybtn4");
+            mybtn4.onclick = function (){
+                echartsRecords.setOption({
+                    series: [
+                    {
+                        name: '水温(℃)',
+                        type: 'line',
+                        data: data[3].temp
+                    },
+                    {
+                        name: 'pH',
+                        type: 'line',
+                        data: data[3].pH
+                    },
+                    {
+                        name: '溶解氧(mg/L)',
+                        type: 'line',
+                        data: data[3].Ox
+                    },
+                    {
+                        name: '导电率(μS/cm)',
+                        type: 'line',
+                        data: data[3].Dao
+                    },
+                    {
+                        name: '浊度(NTU)',
+                        type: 'line',
+                        data: data[3].Zhuodu
+                    },
+                    {
+                        name: '盐度(mg/L)',
+                        type: 'line',
+                        data: data[3].Yandu
+                    }
+                ]
+                });
+            };
+
+            },
+        });
+
+// echarts 窗口缩放自适应
+window.onresize = function () {
+            echartsRecords.resize();
+            echartsRecords1.resize();
+            echartsDataset.resize();
+            echartsMap.resize();
+            echartsGauge.resize();
         }
+
+    });
+    </script>
+
+
+    <script>
         layui.use(['layer', 'miniTab', 'echarts'], function () {
             var $ = layui.jquery,
                 layer = layui.layer,
