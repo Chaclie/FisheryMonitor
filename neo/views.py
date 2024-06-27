@@ -3,12 +3,12 @@ from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from GroupWork import settings
-from neo.models import User,FishInfo,WaterInfo
+from neo.models import User,FishInfo,WaterInfo,MapWaterInfo
 from model.fish.LSTM_fish import LSTMModel
 import re,json,os
 import pandas as pd
 import numpy as np
-import model.YOLO.detect as YOLO
+# import model.YOLO.detect as YOLO
 
 # Create your views here.
 def Index(request):
@@ -321,6 +321,17 @@ def writ2eDB(request):
     for i in range(len(data)):
         row = data.iloc[i]
         WaterInfo.objects.create(Date=row['Date'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'],Andan=row['Andan'],Zonglin=row['Zonglin'],Zongdan=row['Zongdan'])
+    return HttpResponse("success")
+
+def writ3eDB(request):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR, "model/data/water/processed/map")
+    data = pd.read_csv(os.path.join(path,"全国.csv"))
+
+    MapWaterInfo.objects.all().delete()
+    for i in range(len(data)):
+        row = data.iloc[i]
+        MapWaterInfo.objects.create(Province=row['Province'],Class=row['Class'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'],Andan=row['Andan'],Zonglin=row['Zonglin'],Zongdan=row['Zongdan'])
     return HttpResponse("success")
 
 # 从这里开始是视频和图像处理：
