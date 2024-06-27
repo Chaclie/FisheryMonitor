@@ -32,6 +32,15 @@
             padding-right: 70px !important;text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;}
         .layuimini-notice-title {line-height:28px;font-size:14px;}
         .layuimini-notice-extra {position:absolute;top:50%;margin-top:-8px;right:16px;display:inline-block;height:16px;color:#999;}
+            
+        /* 定义颜色渐变 */
+        .blue1 { color: rgba(0, 0, 255, 0.351); }
+        .blue2 { color: rgba(0, 0, 255, 0.552); }
+        .green { color: rgba(128, 255, 0, 0.775); }
+        .orange { color: orange; }
+        .red { color: red; }
+        
+
     </style>
 </head>
 <script>
@@ -165,7 +174,7 @@
                                                 </a>
                                             </div>
                                             <div class="layui-col-xs6 layuimini-qiuck-module">
-                                                <a href="javascript:;" layuimini-content-href="templates/404.html" data-title="异常情况" data-icon="fa fa-snowflake-o">
+                                                <a href="http://127.0.0.1:8000/water/predict" layuimini-content-href="templates/404.html" data-title="异常情况" data-icon="fa fa-snowflake-o">
                                                     <i class="fa fa-snowflake-o"></i>
                                                     <cite>异常情况</cite>
                                                 </a>
@@ -240,6 +249,22 @@
                             </colgroup>
                             <tbody>
                             <tr>
+                                <td>水质预测</td>
+                                <td>
+                                    {% if water_preres == 0 %}
+                                        <span class="blue1"> 水质等级：{{water_predict_list.0}} </span>
+                                    {% elif water_preres == 1 %}
+                                        <span class="blue2"> 水质等级：{{water_predict_list.1}} </span>
+                                    {% elif water_preres == 2 %}
+                                        <span class="green"> 水质等级：{{water_predict_list.2}} </span>
+                                    {% elif water_preres == 3 %}
+                                        <span class="orange"> 水质等级：{{water_predict_list.3}} </span>
+                                    {% else%}
+                                        <span class="red"> 水质等级：{{water_predict_list.4}} </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>温度</td>
                                 <td>
                                     0-7摄氏度
@@ -259,6 +284,40 @@
                                     78 良
                                 </td>
                             </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+                <div class="layui-card">
+                    <div class="layui-card-header"><i class="fa fa-fire icon"></i>水质预警</div>
+                    <div class="layui-card-body layui-text">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="100">
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            {% for key,value in water_res.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>
+                                    {% if value == 0 %}
+                                        <span class="blue1"> 等级：{{water_predict_list.0}} </span>
+                                    {% elif value == 1 %}
+                                        <span class="blue2"> 等级：{{water_predict_list.1}} </span>
+                                    {% elif value == 2 %}
+                                        <span class="green"> 等级：{{water_predict_list.2}} </span>
+                                    {% elif value == 3 %}
+                                        <span class="orange"> 等级：{{water_predict_list.3}} </span>
+                                    {% else%}
+                                        <span class="red"> 等级：{{water_predict_list.4}} </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>

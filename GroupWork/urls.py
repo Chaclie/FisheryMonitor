@@ -60,6 +60,7 @@ urlpatterns = [
     path('water/writeDB', writ2eDB),
     path('water/get_water_info',get_water_info),
     path('water/map/writeDB',writ3eDB),
+    path('water/predict',water_predict),
 
     # 视频+图像
     path('pic/upload_video', views.upload_video),

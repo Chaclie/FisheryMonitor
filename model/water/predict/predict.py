@@ -1,10 +1,12 @@
-from getdata import WaterDataset, getdata_from_xlsx
+from .getdata import WaterDataset, getdata_from_xlsx
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
-from ResMLP import ResMLP
+from .ResMLP import ResMLP
+
+water_predict_list = {'0':'Ⅰ', '1':'ⅠⅠ', '2':'ⅠⅠⅠ','3':'ⅠV', '4':'劣V'}
 
 def premanage(data):
     # 采用地表水水质评价指标
@@ -96,31 +98,32 @@ def premanage(data):
     else:
         error.append(4)
 
-    return error 
+    count = [0,0,0,0,0]
+    for i in error:
+        count[i] += 1
+    return error, count
 
-def model_predict(data, path = "./model.pth", in_dim=7, out_dim=5, device='cpu'):
+def model_predict(data, count, path = "./model/water/predict/model.pth", in_dim=7, out_dim=5, device='cpu', need=False):
     model = ResMLP(in_dim, out_dim)
     model.load_state_dict(torch.load(path))
     model = model.to(device)
     model.eval()
 
-    data = premanage(data)
+    if need:
+        data = premanage(data)
     data = torch.tensor(data).float().to(device)
     data = data.view(-1,7)
     # print(data.shape)
     output = model(data)
     pred = output.data.max(1)[1]
 
-    if pred[0] == 0:
-        return 'Ⅰ'
-    elif pred[0] == 1:
-        return 'Ⅱ'
-    elif pred[0] == 2:
-        return 'Ⅲ'
-    elif pred[0] == 3:
-        return 'Ⅳ'
-    elif pred[0] == 4:
-        return '劣Ⅴ'
-    else:
-        return 'III'
+    res = 0
+    num = 0
+
+    for i in range(5):
+        if num<count[i]:
+            res = i
+            num = count[i]
+
+    return pred, str(res)
         

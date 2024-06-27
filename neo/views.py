@@ -8,6 +8,8 @@ from model.fish.LSTM_fish import LSTMModel
 import re,json,os
 import pandas as pd
 import numpy as np
+from time import sleep
+from model.water.predict.predict import premanage, model_predict, water_predict_list
 # import model.YOLO.detect as YOLO
 
 # Create your views here.
@@ -57,13 +59,34 @@ def Datacenter(request):
     return render(request, 'datacenter.html',data)
 
 def AIcenter(request):
+    water_preres = ""
+    with open('./information/water_preres', 'r', encoding='utf-8') as f: 
+        print(1)
+        lines = f.readlines() 
+        for line in lines:
+            water_preres = int(line)
+    water_res_list = []
+    with open('./information/water_res', 'r', encoding='utf-8') as f: 
+        lines = f.readlines()
+        for line in lines:
+            water_res_list.append(int(line))
+    water_res = {
+        "温度"  :   water_res_list[0],
+        "PH"    :   water_res_list[1],
+        "溶氧量":   water_res_list[2],
+        "高猛酸盐": water_res_list[3],
+        "氨氮"  :   water_res_list[4],
+        "总磷"  :   water_res_list[5],
+        "总氮"  :   water_res_list[6],
+    }
+
     if len(request.GET) == 0:
-        return render(request, 'AIcenter.html')
+        return render(request, 'AIcenter.html', {"water_preres":water_preres, "water_res":water_res, "water_predict_list":water_predict_list })
     show = int(request.GET.get('show')[0])
     w = str(round(float(request.GET.get('w')),2))+ ' kg'
     l = str(round(float(request.GET.get('l')),2))+ ' cm'
     print(show,w,l)
-    return render(request, 'AIcenter.html', {'show':show, 'w':w, 'l':l})
+    return render(request, 'AIcenter.html', {'show':show, 'w':w, 'l':l, "water_preres":water_preres, "water_res":water_res})
 
 def AdminControl(request):
     return render(request, 'admincontrol.html')
@@ -362,6 +385,57 @@ def get_water_info(request):
     data.append(FormData['All'])
     
     return JsonResponse(data,safe=False)
+
+def water_predict(request):
+    if request.method == "GET":
+        return render(request, 'water_predict.html')
+    else:
+        water_data = []
+
+        temp = request.POST.get('temperature1')
+        temp = float(temp) if temp != '' else 10
+        water_data.append(temp)
+
+        PH = request.POST.get('PH1')
+        PH = float(PH) if PH != '' else 7
+        water_data.append(PH)
+        
+
+        Ox = request.POST.get('Ox1')
+        Ox = float(Ox) if Ox != '' else 10
+        water_data.append(Ox)
+
+        water_data.append(0)
+        water_data.append(0)
+
+        gaomeng = request.POST.get('gaomeng1')
+        gaomeng = float(gaomeng) if gaomeng != '' else 0
+        water_data.append(gaomeng)
+
+        andan = request.POST.get('andan1')
+        andan = float(andan) if andan !='' else 0
+        water_data.append(andan)
+
+        zonglin = request.POST.get('zonglin1')
+        zonglin = float(zonglin) if zonglin !='' else 0
+        water_data.append(zonglin)
+
+        zongdan = request.POST.get('zongdan1')
+        zongdan = float(zongdan) if zongdan !='' else 0
+        water_data.append(zongdan)
+
+        water_show = True
+        water_error, count = premanage(water_data)
+        res, water_predict = model_predict(water_error,count)
+
+        with open('./information/water_preres', 'w', encoding='utf-8') as f: 
+            f.write(water_predict)
+        
+        with open('./information/water_res', 'w', encoding='utf-8') as f: 
+            for i in water_error:
+                f.write(str(i)+"\n")
+
+        return redirect('http://127.0.0.1:8000/system/AIcenter.html')
 
 # 导入水质数据到数据库
 def writ2eDB(request):
