@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from GroupWork import settings
@@ -13,6 +13,7 @@ from model.water.predict.predict import premanage, model_predict, water_predict_
 
 # import model.YOLO.detect as YOLO
 
+from django.core.files.storage import FileSystemStorage
 from tqdm import tqdm
 import requests
 from .spider.fish_spider import get_fish_infos
@@ -742,3 +743,64 @@ def writeDB_fishbaike(request):
                     brief_intro=info["brief-intro"],
                 )
     return HttpResponse("success")
+
+
+def fishbaike_add(request: HttpRequest):
+    if request.method == "GET":
+        return render(request, "fishbaike_add.html")
+    else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        baike_dir = os.path.join(BASE_DIR, "model/data/fish/baike")
+        # 更新json文件
+        data_path = os.path.join(baike_dir, "fish_infos_add.json")
+        name = request.POST.get("name")
+        fishbaike_data = {
+            "alias": request.POST.get("alias"),
+            "distribution": request.POST.get("distribution"),
+            "food": request.POST.get("food"),
+            "appearance": request.POST.get("appearance"),
+            "brief_intro": request.POST.get("brief_intro"),
+        }
+        all_fishbaike_data: dict[str:dict] = {}
+        if os.path.isfile(data_path):
+            with open(data_path, "r", encoding="utf-8") as rfp:
+                all_fishbaike_data = json.load(rfp)
+        all_fishbaike_data[name] = fishbaike_data
+        with open(data_path, "w", encoding="utf-8") as wfp:
+            json.dump(all_fishbaike_data, wfp, ensure_ascii=False, indent=2)
+        # 保存图片
+        img_dir = os.path.join(baike_dir, "pics")
+        fs = FileSystemStorage(location=baike_dir)
+        for i, img in enumerate(request.FILES.getlist("image_inputs")):
+            img_path = os.path.join(
+                img_dir,
+                "{}_{:02d}.{}".format(name, i, img.name.split(".", maxsplit=1)[-1]),
+            )
+            fs.save(img_path, img)
+        # 写入数据库
+        FishBaike.objects.create(
+            name=name,
+            alias=fishbaike_data["alias"],
+            distribution=fishbaike_data["distribution"],
+            food=fishbaike_data["food"],
+            appearance=fishbaike_data["appearance"],
+            brief_intro=fishbaike_data["brief_intro"],
+        )
+        return redirect("http://127.0.0.1:8000/system/AIcenter.html")
+
+
+def fishbaike_search(request: HttpRequest):
+    if request.method == "POST":
+        name = request.GET.get("name")
+        search_results: dict[str:dict] = {}
+        for fishbaike in FishBaike.objects.all():
+            if name in FishBaike.name:
+                search_results[fishbaike.name] = {
+                    "alias": fishbaike.alias,
+                    "distribution": fishbaike.distribution,
+                    "food": fishbaike.food,
+                    "appearance": fishbaike.appearance,
+                    "brief_intro": fishbaike.brief_intro,
+                }
+        # TODO
+        pass
