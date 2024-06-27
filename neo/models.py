@@ -29,7 +29,6 @@ class FishInfo(models.Model):
     mean_length = models.FloatField()
     mean_weight = models.FloatField()
 
-
 '''
 @ Date:日期
 @ temp:温度
@@ -54,5 +53,28 @@ class WaterInfo(models.Model):
     Zonglin = models.FloatField()
     Zongdan = models.FloatField()
 
-
-
+'''
+@ Province:省名
+@ Class:水质等级
+@ temp:温度
+@ pH:pH值
+@ Ox:含氧量
+@ Dao:导电率
+@ Zhuodu:浊度
+@ Yandu:盐度
+@ Andan:氨氮
+@ Zonglin:总磷
+@ Zongdan:总氮
+'''
+class MapWaterInfo(models.Model):
+    Province = models.CharField(max_length=30)
+    Class = models.IntegerField()
+    temp = models.FloatField()
+    pH = models.FloatField()
+    Ox = models.FloatField()
+    Dao = models.FloatField()
+    Zhuodu = models.FloatField()
+    Yandu = models.FloatField()
+    Andan = models.FloatField()
+    Zonglin = models.FloatField()
+    Zongdan = models.FloatField()
