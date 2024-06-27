@@ -64,5 +64,7 @@ urlpatterns = [
     # 鱼类百科
     path("fishbaike/download", download_fish_baike),
     path("fishbaike/add", fishbaike_add),
+    path("fishbaike/search", fishbaike_search),
+    path("fishbaike/showdetail", fishbaike_showdetail),
     path("fishbaike/writeDB", writeDB_fishbaike),
 ]

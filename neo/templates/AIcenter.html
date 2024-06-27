@@ -285,14 +285,14 @@
                                     <div class="layui-card-body">
                                         <div class="welcome-module">
                                             <div class="layui-row layui-col-space10 layuimini-qiuck">
-                                                <div class="layui-col-xs4 layuimini-qiuck-module">
+                                                <div class="layui-col-xs6 layuimini-qiuck-module">
                                                     <a href="javascript:;" layuimini-content-href="templates/404.html"
                                                         data-title="轨迹分析" data-icon="fa fa-gears">
                                                         <i class="fa fa-gears"></i>
                                                         <cite>轨迹分析</cite>
                                                     </a>
                                                 </div>
-                                                <div class="layui-col-xs4 layuimini-qiuck-module">
+                                                <div class="layui-col-xs6 layuimini-qiuck-module">
                                                     <a href="http://127.0.0.1:8000/fish/predict"
                                                         layuimini-content-href="templates/404.html" data-title="轨迹追踪"
                                                         data-icon="fa fa-search">
@@ -300,7 +300,7 @@
                                                         <cite>预测生长</cite>
                                                     </a>
                                                 </div>
-                                                <div class="layui-col-xs4 layuimini-qiuck-module">
+                                                <div class="layui-col-xs6 layuimini-qiuck-module">
                                                     <a id="targetRecognitionBtn"
                                                         href="http://127.0.0.1:8000/pic/analysis_video"
                                                         layuimini-content-href="templates/404.html" data-title="患病情况"
@@ -309,7 +309,7 @@
                                                         <cite>鱼类识别</cite>
                                                     </a>
                                                 </div>
-                                                <div class="layui-col-xs4 layuimini-qiuck-module">
+                                                <div class="layui-col-xs6 layuimini-qiuck-module">
                                                     <a href="http://127.0.0.1:8000/water/predict"
                                                         layuimini-content-href="templates/404.html" data-title="异常情况"
                                                         data-icon="fa fa-snowflake-o">
@@ -317,19 +317,38 @@
                                                         <cite>异常情况</cite>
                                                     </a>
                                                 </div>
-                                                <div class="layui-col-xs4 layuimini-qiuck-module">
-                                                    <a href="http://127.0.0.1:8000/fishbaike/add"
-                                                        layuimini-content-href="templates/404.html" data-title="轨迹追踪"
-                                                        data-icon="fa fa-search">
-                                                        <i class="fa fa-search"></i>
-                                                        <cite>鱼类添加</cite>
-                                                    </a>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="layui-col-md12">
+                                <div class="layui-card">
+                                    <div class="layui-card-header"><i class="fa fa-credit-card icon icon-blue"></i>鱼类百科
+                                    </div>
+                                    <div class="layui-card-body">
+                                        <div>
+                                            <a href="http://127.0.0.1:8000/fishbaike/add"><button type="button"
+                                                    class="layui-btn layui-btn-normal">鱼类添加</button></a>
+                                            <a href="http://127.0.0.1:8000/fishbaike/writeDB"><button type="button"
+                                                    class="layui-btn layui-btn-normal">数据刷新</button></a>
+                                            <a href="#"><button type="button"
+                                                    class="layui-btn layui-btn-normal">数据导出</button></a>
+                                        </div>
+                                        <hr>
+                                        <div>
+                                            <form action="http://localhost:8000/fishbaike/search" method="get">
+                                                <div>
+                                                    <button lay-submit="" lay-filter="demo1">查询</button>
+                                                    <input id="name" name="name" required placeholder="鱼类名称"
+                                                        maxlength="32" type="text" />
+                                                </div>
+                                                <div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="layui-col-md12">
                                 <div class="layui-card">

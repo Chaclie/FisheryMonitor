@@ -739,8 +739,8 @@ def writeDB_fishbaike(request):
                     alias=info["alias"],
                     distribution=info["distribution"],
                     food=info["food"],
-                    appearance=info["appearance"],
-                    brief_intro=info["brief-intro"],
+                    appearance="\n".join(info["appearance"]),
+                    brief_intro="\n".join(info["brief-intro"]),
                 )
     return HttpResponse("success")
 
@@ -790,17 +790,54 @@ def fishbaike_add(request: HttpRequest):
 
 
 def fishbaike_search(request: HttpRequest):
-    if request.method == "POST":
+    if request.method == "GET":
         name = request.GET.get("name")
-        search_results: dict[str:dict] = {}
+        search_results: list[dict] = []
         for fishbaike in FishBaike.objects.all():
-            if name in FishBaike.name:
-                search_results[fishbaike.name] = {
+            if name in fishbaike.name or name in fishbaike.alias:
+                search_results.append(
+                    {"name": fishbaike.name, "alias": fishbaike.alias}
+                )
+        if len(search_results) == 0:
+            return HttpResponse('未找到与"{}"相关鱼类信息。'.format(name))
+        return render(request, "fishbaike_search.html", {"results": search_results})
+    return HttpResponse("访问方式错误，请使用GET请求访问。")
+
+
+def fishbaike_showdetail(request: HttpRequest):
+    if request.method == "GET":
+        name = request.GET.get("name")
+        print(name)
+        filter_result = FishBaike.objects.filter(name=name)
+        if len(filter_result) == 0:
+            return HttpResponse("未找到该鱼类({})的信息。".format(name))
+        if len(filter_result) > 1:
+            return HttpResponse(
+                "数据库中存在多个名为{}的鱼类，请联系管理员解决。".format(name)
+            )
+        fishbaike = filter_result[0]
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        RELA_DIR = "model/data/fish/baike"
+        baike_dir = os.path.join(BASE_DIR, RELA_DIR)
+        all_pics = os.listdir(os.path.join(baike_dir, "pics"))
+        images = [
+            settings.STATIC_URL + "fish/baike/pics/" + pic
+            for pic in all_pics
+            if pic.startswith(name)
+        ]
+        return render(
+            request,
+            "fishbaike_detail.html",
+            {
+                "fish_info": {
+                    "name": fishbaike.name,
                     "alias": fishbaike.alias,
                     "distribution": fishbaike.distribution,
                     "food": fishbaike.food,
-                    "appearance": fishbaike.appearance,
-                    "brief_intro": fishbaike.brief_intro,
+                    "appearance": fishbaike.appearance.split("\n"),
+                    "brief_intro": fishbaike.brief_intro.split("\n"),
+                    "images": images,
                 }
-        # TODO
-        pass
+            },
+        )
+    return HttpResponse("访问方式错误，请使用GET请求访问。")
