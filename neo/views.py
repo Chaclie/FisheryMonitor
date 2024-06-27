@@ -841,3 +841,20 @@ def fishbaike_showdetail(request: HttpRequest):
             },
         )
     return HttpResponse("访问方式错误，请使用GET请求访问。")
+
+
+def fishbaike_exportdata(request: HttpRequest):
+    org_fishinfos = FishBaike.objects.all()
+    fishinfos: dict[str:dict] = {}
+    for fishinfo in org_fishinfos:
+        fishinfos[fishinfo.name] = {
+            "alias": fishinfo.alias,
+            "distribution": fishinfo.distribution,
+            "food": fishinfo.food,
+            "appearance": fishinfo.appearance.split("\n"),
+            "brief_intro": fishinfo.brief_intro.split("\n"),
+        }
+    json_data = json.dumps(fishinfos, indent=2, ensure_ascii=False)
+    response = HttpResponse(json_data, content_type="application/json")
+    response["Content-Disposition"] = 'attachment; filename="export.json"'
+    return response
