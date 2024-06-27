@@ -1,280 +1,364 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from GroupWork import settings
-from neo.models import User,FishInfo,WaterInfo,MapWaterInfo
+from neo.models import User, FishInfo, WaterInfo, MapWaterInfo, FishBaike
 from model.fish.LSTM_fish import LSTMModel
-import re,json,os
+import re, json, os, time
 import pandas as pd
 import numpy as np
 from time import sleep
 from model.water.predict.predict import premanage, model_predict, water_predict_list
+
 # import model.YOLO.detect as YOLO
+
+from tqdm import tqdm
+import requests
+from .spider.fish_spider import get_fish_infos
+
 
 # Create your views here.
 def Index(request):
 
-    return render(request, 'index.html')
+    return render(request, "index.html")
+
 
 def welcome(request):
-    return render(request, 'welcome.html')
+    return render(request, "welcome.html")
+
 
 def forget(request):
     return render(request, "forget_code.html")
 
+
 def system(request):
 
-    uid = request.GET.get('uid')
+    uid = request.GET.get("uid")
     if uid == None:
         return redirect("/")
     user = User.objects.get(id=uid)
-    dic = {0:'普通用户',1:'批发商',2:'养殖户',3:'管理员',4:'高级管理员'}
-    return render(request, 'system.html', {'uid': uid, 'username': user.username, 'permission': user.permission, 'identity':dic[user.permission]})
-    
+    dic = {0: "普通用户", 1: "批发商", 2: "养殖户", 3: "管理员", 4: "高级管理员"}
+    return render(
+        request,
+        "system.html",
+        {
+            "uid": uid,
+            "username": user.username,
+            "permission": user.permission,
+            "identity": dic[user.permission],
+        },
+    )
+
     # return render(request, 'system.html')
 
+
 def MainInfo(request):
-    res=get_water_statistics(request)
-    data=json.loads(res.content)
+    res = get_water_statistics(request)
+    data = json.loads(res.content)
     # print(data[0])
-    return render(request,'MainInfo.html',{'data':data})
+    return render(request, "MainInfo.html", {"data": data})
+
 
 def Underwater(request):
     res = get_fish_statistics(request)
     data = json.loads(res.content)
     print(data)
-    return render(request, 'Underwater.html', {'data':data})
+    return render(request, "Underwater.html", {"data": data})
+
 
 def Datacenter(request):
     data = {
-        'Prosess': 999,
-        'disk_used': 1000,
-        'disk_rest': 1500,
-        'transport_time' : "02:45",
-        'CPU': 80,
-        'memory': 60,
-        'GPU': 50,
+        "Prosess": 999,
+        "disk_used": 1000,
+        "disk_rest": 1500,
+        "transport_time": "02:45",
+        "CPU": 80,
+        "memory": 60,
+        "GPU": 50,
     }
-    return render(request, 'datacenter.html',data)
+    return render(request, "datacenter.html", data)
+
 
 def AIcenter(request):
     water_preres = ""
-    with open('./information/water_preres', 'r', encoding='utf-8') as f: 
+    with open("./information/water_preres", "r", encoding="utf-8") as f:
         print(1)
-        lines = f.readlines() 
+        lines = f.readlines()
         for line in lines:
             water_preres = int(line)
     water_res_list = []
-    with open('./information/water_res', 'r', encoding='utf-8') as f: 
+    with open("./information/water_res", "r", encoding="utf-8") as f:
         lines = f.readlines()
         for line in lines:
             water_res_list.append(int(line))
     water_res = {
-        "温度"  :   water_res_list[0],
-        "PH"    :   water_res_list[1],
-        "溶氧量":   water_res_list[2],
+        "温度": water_res_list[0],
+        "PH": water_res_list[1],
+        "溶氧量": water_res_list[2],
         "高猛酸盐": water_res_list[3],
-        "氨氮"  :   water_res_list[4],
-        "总磷"  :   water_res_list[5],
-        "总氮"  :   water_res_list[6],
+        "氨氮": water_res_list[4],
+        "总磷": water_res_list[5],
+        "总氮": water_res_list[6],
     }
 
     if len(request.GET) == 0:
-        return render(request, 'AIcenter.html', {"water_preres":water_preres, "water_res":water_res, "water_predict_list":water_predict_list })
-    show = int(request.GET.get('show')[0])
-    w = str(round(float(request.GET.get('w')),2))+ ' kg'
-    l = str(round(float(request.GET.get('l')),2))+ ' cm'
-    print(show,w,l)
-    return render(request, 'AIcenter.html', {'show':show, 'w':w, 'l':l, "water_preres":water_preres, "water_res":water_res})
+        return render(
+            request,
+            "AIcenter.html",
+            {
+                "water_preres": water_preres,
+                "water_res": water_res,
+                "water_predict_list": water_predict_list,
+            },
+        )
+    show = int(request.GET.get("show")[0])
+    w = str(round(float(request.GET.get("w")), 2)) + " kg"
+    l = str(round(float(request.GET.get("l")), 2)) + " cm"
+    print(show, w, l)
+    return render(
+        request,
+        "AIcenter.html",
+        {
+            "show": show,
+            "w": w,
+            "l": l,
+            "water_preres": water_preres,
+            "water_res": water_res,
+        },
+    )
+
 
 def AdminControl(request):
-    return render(request, 'admincontrol.html')
+    return render(request, "admincontrol.html")
+
 
 # 注册登录
 def login(request):
-    if request.method == 'GET':
+    if request.method == "GET":
         # 先尝试从cookie登录
-        usrname = request.COOKIES.get('username')
-        pwd = request.COOKIES.get('password')
+        usrname = request.COOKIES.get("username")
+        pwd = request.COOKIES.get("password")
         try:
             user = User.objects.get(username=usrname)
-            if user.password == pwd and request.GET.get('status') != 'quit': # cookie验证成功，直接前往主页
-                return redirect(f'/system/?uid={user.id}')
+            if (
+                user.password == pwd and request.GET.get("status") != "quit"
+            ):  # cookie验证成功，直接前往主页
+                return redirect(f"/system/?uid={user.id}")
             # 否则渲染登录页
-            return render(request, 'login.html')
+            return render(request, "login.html")
         except:
-            return render(request, 'login.html')
+            return render(request, "login.html")
     # POST
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    verify_code = request.POST.get('verify_code') # 获取用户输入的验证码
-    if str(verify_code).lower() != 'xszg':
-        return render(request, 'login.html', {'error': '验证码错误！'})
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+    verify_code = request.POST.get("verify_code")  # 获取用户输入的验证码
+    if str(verify_code).lower() != "xszg":
+        return render(request, "login.html", {"error": "验证码错误！"})
     # 检查用户输入的用户名和密码
     curr_user = User.objects.filter(username=username)
     if len(curr_user) == 0:
-        return render(request, 'login.html', {'error': '用户名不存在！'})
+        return render(request, "login.html", {"error": "用户名不存在！"})
     if curr_user[0].password != password:
-        return render(request, 'login.html', {'error': '密码错误！'})
-    cookie = {
-        'username': username,
-        'password': password
-    }
-    response = HttpResponseRedirect('/system/')
-    for k,v in cookie.items():
-        response.set_cookie(k,v,max_age=60*60*24,path='/') # 设置一天的cookie
+        return render(request, "login.html", {"error": "密码错误！"})
+    cookie = {"username": username, "password": password}
+    response = HttpResponseRedirect("/system/")
+    for k, v in cookie.items():
+        response.set_cookie(k, v, max_age=60 * 60 * 24, path="/")  # 设置一天的cookie
     return response
 
+
 def register_page(request):
-    if request.method == 'GET':
-        return render(request,'register.html')
+    if request.method == "GET":
+        return render(request, "register.html")
     # POST
     # 用户名不能重复
-    username = request.POST.get('username')
-    if len(User.objects.filter(username=username))!=0:
-        return render(request, 'register.html', {'error': '用户名已存在！'})
+    username = request.POST.get("username")
+    if len(User.objects.filter(username=username)) != 0:
+        return render(request, "register.html", {"error": "用户名已存在！"})
 
     # 邮箱格式检查，并且邮箱不能重复
-    email = request.POST.get('email')
-    pattern = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(pattern,str(email)):
-        return render(request, 'register.html', {'error': '邮箱格式错误！'})
-    if len(User.objects.filter(email=email))!=0:
-        return render(request, 'register.html', {'error': '邮箱已存在！'})
+    email = request.POST.get("email")
+    pattern = r"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$"
+    if not re.match(pattern, str(email)):
+        return render(request, "register.html", {"error": "邮箱格式错误！"})
+    if len(User.objects.filter(email=email)) != 0:
+        return render(request, "register.html", {"error": "邮箱已存在！"})
 
-    password = request.POST.get('password')
+    password = request.POST.get("password")
     # 创建新用户
     User.objects.create(username=username, password=password, email=email)
-    response = HttpResponseRedirect('/') # 返回登录页
+    response = HttpResponseRedirect("/")  # 返回登录页
     # 创建新用户之后，删除所有cookie
     cookie_names = request.COOKIES.keys()
     for cookie_name in cookie_names:
         response.delete_cookie(cookie_name)
     return response
 
+
 def edit_data(request):
-    username = request.GET.get('username')
-    return render(request, 'edit.html', {'username': username})
+    username = request.GET.get("username")
+    return render(request, "edit.html", {"username": username})
+
 
 def edit_check(request):
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    email = request.POST.get('email')
-    permission = request.POST.get('interest')
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+    email = request.POST.get("email")
+    permission = request.POST.get("interest")
 
     # 定位原来的用户
-    origin = request.POST.get('origin')
+    origin = request.POST.get("origin")
     user = User.objects.get(username=origin)
     user.username = username
     user.password = password
     user.email = email
     user.permission = permission
     user.save()
-    return redirect('/backend/table.html')
+    return redirect("/backend/table.html")
+
 
 def backend(request):
-    return render(request, 'backend.html')
+    return render(request, "backend.html")
+
 
 def table(request):
-    return render(request, 'table.html')
+    return render(request, "table.html")
+
 
 def map(request):
-    return render(request, 'map.html')
+    return render(request, "map.html")
+
 
 def get_data(request):
     users = list(User.objects.all().values())  # 获取所有用户数据，并转换为字典列表
     return JsonResponse({"code": 0, "data": users})
 
+
 def smart_qa(request):
-    return render(request, 'smart_QA.html')
+    return render(request, "smart_QA.html")
+
 
 # 获取鱼类统计信息
 def get_fish_statistics(request):
     # 获取当前绝对路径
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.join(BASE_DIR,"model/data/fish/processed")
-    data = pd.read_csv(os.path.join(path,'fish.csv'),index_col=0)
+    path = os.path.join(BASE_DIR, "model/data/fish/processed")
+    data = pd.read_csv(os.path.join(path, "fish.csv"), index_col=0)
     # 获取鱼类种类和数量
-    fish_species = data['Latin_Name'].unique()
-    fish_count = int(data['Count'].sum())
-    data = pd.read_csv(os.path.join(path,'fish_final.csv'),index_col=0)
+    fish_species = data["Latin_Name"].unique()
+    fish_count = int(data["Count"].sum())
+    data = pd.read_csv(os.path.join(path, "fish_final.csv"), index_col=0)
     # 获取平均体长和平均体重，保留两位小数
-    mean_length = round(data['Mean_Length'].mean(),2)
-    mean_weight = round(data['Mean_Weight'].mean(),2)
-    return JsonResponse({'fish_species':len(fish_species),
-                         'fish_count':fish_count,
-                         'mean_length':mean_length,
-                         'mean_weight':mean_weight
-                         })
+    mean_length = round(data["Mean_Length"].mean(), 2)
+    mean_weight = round(data["Mean_Weight"].mean(), 2)
+    return JsonResponse(
+        {
+            "fish_species": len(fish_species),
+            "fish_count": fish_count,
+            "mean_length": mean_length,
+            "mean_weight": mean_weight,
+        }
+    )
+
 
 def getTOP5(request):
     # 获取当前绝对路径
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
-    data = pd.read_csv(os.path.join(path,'fish_cleaned.csv'),index_col=0)
+    data = pd.read_csv(os.path.join(path, "fish_cleaned.csv"), index_col=0)
     # 获取top5
-    all_groups = data.groupby('Latin_Name')
+    all_groups = data.groupby("Latin_Name")
     tuples = []
     for group_name in all_groups.groups:
         curr_group = all_groups.get_group(group_name)
-        dates = curr_group['Date'].unique()
+        dates = curr_group["Date"].unique()
         tuples.append((group_name, len(dates)))
     tuples.sort(key=lambda x: x[1], reverse=True)
     tuples = tuples[:5]
-    top5 = [{'value':tuples[i][1],'name':tuples[i][0]} for i in range(5)]
+    top5 = [{"value": tuples[i][1], "name": tuples[i][0]} for i in range(5)]
     return JsonResponse(top5, safe=False)
+
 
 def get_fish_change(request):
     # 获取当前绝对路径
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
-    data = pd.read_csv(os.path.join(path,'fish_time.csv'),index_col=0)
-    data['Date'] = pd.to_datetime(data['Date'])
-    return JsonResponse(data.to_dict(orient='list'))
+    data = pd.read_csv(os.path.join(path, "fish_time.csv"), index_col=0)
+    data["Date"] = pd.to_datetime(data["Date"])
+    return JsonResponse(data.to_dict(orient="list"))
+
 
 def get_top_info(request):
     # 获取当前绝对路径
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
-    with open(os.path.join(path,'top_info.json'),'r') as f:
+    with open(os.path.join(path, "top_info.json"), "r") as f:
         data = json.load(f)
     # print(type(data))
     # print(data[0])
-    return JsonResponse(data,safe=False)
+    return JsonResponse(data, safe=False)
+
 
 def writ1eDB(request):
-    FishInfo.objects.all().delete() # 防止重复写入
-    usecols = ['Year','Date', 'Latin_Name', 'Count', 'Mean_Length', 'Mean_Weight']
+    FishInfo.objects.all().delete()  # 防止重复写入
+    usecols = ["Year", "Date", "Latin_Name", "Count", "Mean_Length", "Mean_Weight"]
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
-    data = pd.read_csv(os.path.join(path,"fish_final.csv"),usecols=usecols)
+    data = pd.read_csv(os.path.join(path, "fish_final.csv"), usecols=usecols)
     for i in range(len(data)):
         row = data.iloc[i]
-        FishInfo.objects.create(year=row['Year'], date=row['Date'], latin_name=row['Latin_Name'], count=row['Count'], mean_length=row['Mean_Length'], mean_weight=row['Mean_Weight'])
+        FishInfo.objects.create(
+            year=row["Year"],
+            date=row["Date"],
+            latin_name=row["Latin_Name"],
+            count=row["Count"],
+            mean_length=row["Mean_Length"],
+            mean_weight=row["Mean_Weight"],
+        )
     return HttpResponse("success")
+
 
 def fish_predict(request):
     if request.method == "GET":
-        fish_species = FishInfo.objects.values('latin_name').distinct()
-        return render(request, 'fish_predict.html', {'fish_species':fish_species})
+        fish_species = FishInfo.objects.values("latin_name").distinct()
+        return render(request, "fish_predict.html", {"fish_species": fish_species})
     else:
-        fish_name = request.POST.get('fish_name')
-        duration = int(request.POST.get('duration'))
+        fish_name = request.POST.get("fish_name")
+        duration = int(request.POST.get("duration"))
         fish_data = FishInfo.objects.filter(latin_name=fish_name)
-        data = pd.DataFrame(list(fish_data.values()),columns=['id','year','date','latin_name','count','mean_length','mean_weight'])
-        data['date_ordinal'] = data['date'].apply(lambda x: x.toordinal())
-        data = data[['year', 'date_ordinal', 'count']]
-        data = np.array(data)[-1*duration:]
+        data = pd.DataFrame(
+            list(fish_data.values()),
+            columns=[
+                "id",
+                "year",
+                "date",
+                "latin_name",
+                "count",
+                "mean_length",
+                "mean_weight",
+            ],
+        )
+        data["date_ordinal"] = data["date"].apply(lambda x: x.toordinal())
+        data = data[["year", "date_ordinal", "count"]]
+        data = np.array(data)[-1 * duration :]
         data = np.expand_dims(data, axis=0)
 
         # 获取当前绝对路径
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         SAVE_PATH = os.path.join(BASE_DIR, "model/data/fish/save")
-        model = LSTMModel(3,100,2,2,SAVE_PATH=SAVE_PATH)
-        predictions = model.api(data,DATA_PATH=os.path.join(BASE_DIR, "model/data/fish/processed/fish_final.csv"))
-        return redirect(f'http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}')
-    
+        model = LSTMModel(3, 100, 2, 2, SAVE_PATH=SAVE_PATH)
+        predictions = model.api(
+            data,
+            DATA_PATH=os.path.join(
+                BASE_DIR, "model/data/fish/processed/fish_final.csv"
+            ),
+        )
+        return redirect(
+            f"http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}"
+        )
+
+
 # 获取水质统计信息
 # '''
 #     Date:日期
@@ -290,222 +374,371 @@ def fish_predict(request):
 # '''
 def get_water_statistics(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.join(BASE_DIR,"model/data/water/processed")
-    data = pd.read_csv(os.path.join(path,'water_cleaned.csv'),index_col=0)
+    path = os.path.join(BASE_DIR, "model/data/water/processed")
+    data = pd.read_csv(os.path.join(path, "water_cleaned.csv"), index_col=0)
     # 获取统计图信息
-    FormData={}
-    for tag in ['Day','Week','Month','All']:
-        temp,pH,Ox,Dao,Zhuodu,Yandu=[],[],[],[],[],[]
-        
-        step=0
+    FormData = {}
+    for tag in ["Day", "Week", "Month", "All"]:
+        temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
 
-        if tag == 'All':
-            step=300
-        if tag == 'Month':
-            step=140
-        if tag == 'Week':
-            step=70
-        if tag == 'Day':
-            step=30
+        step = 0
+
+        if tag == "All":
+            step = 300
+        if tag == "Month":
+            step = 140
+        if tag == "Week":
+            step = 70
+        if tag == "Day":
+            step = 30
 
         for i in range(7):
-            temp.append(round(data['temp'].head((i+1)*step).mean(),3))
-            pH.append(round(data['pH'].head((i+1)*step).mean(),3))
-            Ox.append(round(data['Ox'].head((i+1)*step).mean(),3))
-            Dao.append(round(data['Dao'].head((i+1)*step).mean(),3))
-            Zhuodu.append(round(data['Zhuodu'].head((i+1)*step).mean(),3))
-            Yandu.append(round(data['Yandu'].head((i+1)*step).mean(),3))
-        
-        if tag == 'Day':
-            Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Day
-        if tag == 'Week':
-            Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Week
-        if tag == 'Month':
-            Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Month
-        if tag == 'All':
-            All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=All
+            temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
+            pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
+            Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
+            Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
+            Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
+            Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
+
+        if tag == "Day":
+            Day = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Day
+        if tag == "Week":
+            Week = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Week
+        if tag == "Month":
+            Month = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Month
+        if tag == "All":
+            All = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = All
 
     # 获取表格数据
-    AvgData={}
-    for tag in ['temp','pH','Ox','Dao','Zhuodu','Yandu']:
-        AvgData[tag]=round(data[tag].mean(),3)
+    AvgData = {}
+    for tag in ["temp", "pH", "Ox", "Dao", "Zhuodu", "Yandu"]:
+        AvgData[tag] = round(data[tag].mean(), 3)
 
-    return JsonResponse({'FormData':FormData,'AvgData':AvgData})
+    return JsonResponse({"FormData": FormData, "AvgData": AvgData})
+
 
 def get_water_info(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.join(BASE_DIR,"model/data/water/processed")
-    data = pd.read_csv(os.path.join(path,'water_cleaned.csv'),index_col=0)
+    path = os.path.join(BASE_DIR, "model/data/water/processed")
+    data = pd.read_csv(os.path.join(path, "water_cleaned.csv"), index_col=0)
 
-    FormData={}
-    for tag in ['Day','Week','Month','All']:
-        temp,pH,Ox,Dao,Zhuodu,Yandu=[],[],[],[],[],[]
-        
-        step=0
+    FormData = {}
+    for tag in ["Day", "Week", "Month", "All"]:
+        temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
 
-        if tag == 'All':
-            step=300
-        if tag == 'Month':
-            step=140
-        if tag == 'Week':
-            step=70
-        if tag == 'Day':
-            step=30
+        step = 0
+
+        if tag == "All":
+            step = 300
+        if tag == "Month":
+            step = 140
+        if tag == "Week":
+            step = 70
+        if tag == "Day":
+            step = 30
 
         for i in range(7):
-            temp.append(round(data['temp'].head((i+1)*step).mean(),3))
-            pH.append(round(data['pH'].head((i+1)*step).mean(),3))
-            Ox.append(round(data['Ox'].head((i+1)*step).mean(),3))
-            Dao.append(round(data['Dao'].head((i+1)*step).mean(),3))
-            Zhuodu.append(round(data['Zhuodu'].head((i+1)*step).mean(),3))
-            Yandu.append(round(data['Yandu'].head((i+1)*step).mean(),3))
-        
-        if tag == 'Day':
-            Day={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Day
-        if tag == 'Week':
-            Week={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Week
-        if tag == 'Month':
-            Month={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=Month
-        if tag == 'All':
-            All={'temp':temp,'pH':pH,'Ox':Ox,'Dao':Dao,'Zhuodu':Zhuodu,'Yandu':Yandu}
-            FormData[tag]=All
+            temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
+            pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
+            Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
+            Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
+            Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
+            Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
+
+        if tag == "Day":
+            Day = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Day
+        if tag == "Week":
+            Week = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Week
+        if tag == "Month":
+            Month = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = Month
+        if tag == "All":
+            All = {
+                "temp": temp,
+                "pH": pH,
+                "Ox": Ox,
+                "Dao": Dao,
+                "Zhuodu": Zhuodu,
+                "Yandu": Yandu,
+            }
+            FormData[tag] = All
 
     # 获取表格数据
     data = []
-    data.append(FormData['Day'])
-    data.append(FormData['Week'])
-    data.append(FormData['Month'])
-    data.append(FormData['All'])
-    
-    return JsonResponse(data,safe=False)
+    data.append(FormData["Day"])
+    data.append(FormData["Week"])
+    data.append(FormData["Month"])
+    data.append(FormData["All"])
+
+    return JsonResponse(data, safe=False)
+
 
 def water_predict(request):
     if request.method == "GET":
-        return render(request, 'water_predict.html')
+        return render(request, "water_predict.html")
     else:
         water_data = []
 
-        temp = request.POST.get('temperature1')
-        temp = float(temp) if temp != '' else 10
+        temp = request.POST.get("temperature1")
+        temp = float(temp) if temp != "" else 10
         water_data.append(temp)
 
-        PH = request.POST.get('PH1')
-        PH = float(PH) if PH != '' else 7
+        PH = request.POST.get("PH1")
+        PH = float(PH) if PH != "" else 7
         water_data.append(PH)
-        
 
-        Ox = request.POST.get('Ox1')
-        Ox = float(Ox) if Ox != '' else 10
+        Ox = request.POST.get("Ox1")
+        Ox = float(Ox) if Ox != "" else 10
         water_data.append(Ox)
 
         water_data.append(0)
         water_data.append(0)
 
-        gaomeng = request.POST.get('gaomeng1')
-        gaomeng = float(gaomeng) if gaomeng != '' else 0
+        gaomeng = request.POST.get("gaomeng1")
+        gaomeng = float(gaomeng) if gaomeng != "" else 0
         water_data.append(gaomeng)
 
-        andan = request.POST.get('andan1')
-        andan = float(andan) if andan !='' else 0
+        andan = request.POST.get("andan1")
+        andan = float(andan) if andan != "" else 0
         water_data.append(andan)
 
-        zonglin = request.POST.get('zonglin1')
-        zonglin = float(zonglin) if zonglin !='' else 0
+        zonglin = request.POST.get("zonglin1")
+        zonglin = float(zonglin) if zonglin != "" else 0
         water_data.append(zonglin)
 
-        zongdan = request.POST.get('zongdan1')
-        zongdan = float(zongdan) if zongdan !='' else 0
+        zongdan = request.POST.get("zongdan1")
+        zongdan = float(zongdan) if zongdan != "" else 0
         water_data.append(zongdan)
 
         water_show = True
         water_error, count = premanage(water_data)
-        res, water_predict = model_predict(water_error,count)
+        res, water_predict = model_predict(water_error, count)
 
-        with open('./information/water_preres', 'w', encoding='utf-8') as f: 
+        with open("./information/water_preres", "w", encoding="utf-8") as f:
             f.write(water_predict)
-        
-        with open('./information/water_res', 'w', encoding='utf-8') as f: 
-            for i in water_error:
-                f.write(str(i)+"\n")
 
-        return redirect('http://127.0.0.1:8000/system/AIcenter.html')
+        with open("./information/water_res", "w", encoding="utf-8") as f:
+            for i in water_error:
+                f.write(str(i) + "\n")
+
+        return redirect("http://127.0.0.1:8000/system/AIcenter.html")
+
 
 # 导入水质数据到数据库
 def writ2eDB(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/water/processed")
-    data = pd.read_csv(os.path.join(path,"water_cleaned.csv"))
+    data = pd.read_csv(os.path.join(path, "water_cleaned.csv"))
 
     WaterInfo.objects.all().delete()
     for i in range(len(data)):
         row = data.iloc[i]
-        WaterInfo.objects.create(Date=row['Date'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'],Andan=row['Andan'],Zonglin=row['Zonglin'],Zongdan=row['Zongdan'])
+        WaterInfo.objects.create(
+            Date=row["Date"],
+            temp=row["temp"],
+            pH=row["pH"],
+            Ox=row["Ox"],
+            Dao=row["Dao"],
+            Zhuodu=row["Zhuodu"],
+            Yandu=row["Yandu"],
+            Andan=row["Andan"],
+            Zonglin=row["Zonglin"],
+            Zongdan=row["Zongdan"],
+        )
     return HttpResponse("success")
+
 
 def writ3eDB(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/water/processed/map")
-    data = pd.read_csv(os.path.join(path,"全国.csv"))
+    data = pd.read_csv(os.path.join(path, "全国.csv"))
 
     MapWaterInfo.objects.all().delete()
     for i in range(len(data)):
         row = data.iloc[i]
-        MapWaterInfo.objects.create(Province=row['Province'],Class=row['Class'],temp=row['temp'],pH=row['pH'],Ox=row['Ox'],Dao=row['Dao'],Zhuodu=row['Zhuodu'],Yandu=row['Yandu'],Andan=row['Andan'],Zonglin=row['Zonglin'],Zongdan=row['Zongdan'])
+        MapWaterInfo.objects.create(
+            Province=row["Province"],
+            Class=row["Class"],
+            temp=row["temp"],
+            pH=row["pH"],
+            Ox=row["Ox"],
+            Dao=row["Dao"],
+            Zhuodu=row["Zhuodu"],
+            Yandu=row["Yandu"],
+            Andan=row["Andan"],
+            Zonglin=row["Zonglin"],
+            Zongdan=row["Zongdan"],
+        )
     return HttpResponse("success")
+
 
 # 从这里开始是视频和图像处理：
 def upload_video(request):
-    if request.method == 'POST' and request.FILES.get('video_file'):
-        video_file = request.FILES['video_file']
-        upload_type = request.POST.get('upload_type', 'unknown')
+    if request.method == "POST" and request.FILES.get("video_file"):
+        video_file = request.FILES["video_file"]
+        upload_type = request.POST.get("upload_type", "unknown")
 
         # 构造保存路径
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        upload_dir  = os.path.join(BASE_DIR, "neo\static\\video\\")
+        upload_dir = os.path.join(BASE_DIR, "neo\static\\video\\")
         print(upload_dir)
-        video_file.name = f'{upload_type}.mp4'
+        video_file.name = f"{upload_type}.mp4"
         # 保存文件
-        with open(os.path.join(upload_dir, video_file.name), 'wb+') as destination:
+        with open(os.path.join(upload_dir, video_file.name), "wb+") as destination:
             for chunk in video_file.chunks():
                 destination.write(chunk)
-        return render(request, 'MainInfo.html')
-    else :
+        return render(request, "MainInfo.html")
+    else:
         # 处理 GET 请求
-        return render(request, 'MainInfo.html', {'error': '未上传视频！'})
-    
+        return render(request, "MainInfo.html", {"error": "未上传视频！"})
+
 
 def switch_video(request):
-    if request.method == 'POST' :
-        upload_type = request.POST.get('upload_type', 'unknown')
-
+    if request.method == "POST":
+        upload_type = request.POST.get("upload_type", "unknown")
 
         # 构造路径
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        upload_dir  = os.path.join(BASE_DIR, "neo\static\\video\\")
-        upload_to_dir  = os.path.join(BASE_DIR, "neo\static\\video\\test\\")
-        src_name = f'{upload_type}.mp4'
-        vid_name = f'test.mp4'
+        upload_dir = os.path.join(BASE_DIR, "neo\static\\video\\")
+        upload_to_dir = os.path.join(BASE_DIR, "neo\static\\video\\test\\")
+        src_name = f"{upload_type}.mp4"
+        vid_name = f"test.mp4"
 
         # 从源目录复制到目标目录
         from shutil import copy2
-        copy2(os.path.join(upload_dir,  src_name), os.path.join(upload_to_dir,  vid_name))
 
-        return render(request, 'AIcenter.html')
-    else :
+        copy2(os.path.join(upload_dir, src_name), os.path.join(upload_to_dir, vid_name))
+
+        return render(request, "AIcenter.html")
+    else:
         # 处理 GET 请求
-        return render(request, 'AIcenter.html', {'error': '未选择视频！'})
-    
+        return render(request, "AIcenter.html", {"error": "未选择视频！"})
+
 
 def analysis_video(request):
     # type为鱼的英文名，可以根据字典映射到id
     type = YOLO.detect()
     # 打印来看已经可以正常输出Carcharodon_carcharias，但是返回不正常呢，大家测试的时候可以直接设置type等于巴拉巴拉来看看
     print(type)
-    return render(request, 'AIcenter.html', {'answer': {type}})
+    return render(request, "AIcenter.html", {"answer": {type}})
+
+
+##############################################
+# 鱼类百科
+##############################################
+def download_fish_baike(request):
+    """爬取鱼百科信息并下载图片，耗时较长，慎用"""
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    baike_dir = os.path.join(BASE_DIR, "model/data/fish/baike")
+    img_dir = os.path.join(baike_dir, "pics")
+    if not os.path.exists(baike_dir):
+        os.makedirs(baike_dir)
+    fish_infos, fail_urls = get_fish_infos(baike_dir)
+    hints: list[str] = []
+    hints.append(
+        "{} kinds of fish found and {} urls failed.".format(
+            len(fish_infos), len(fail_urls)
+        )
+    )
+    for fail_url in fail_urls:
+        hints.append(fail_url)
+    os.makedirs(img_dir, exist_ok=True)
+    total_cnt, save_cnt = 0, 0
+    for fish_name, fish_info in tqdm(fish_infos.items()):
+        fish_img_urls = fish_info["images"]
+        total_cnt += len(fish_img_urls)
+        for idx, img_url in enumerate(fish_img_urls):
+            img_name = f"{fish_name}_{idx:02d}.{img_url.split('.')[-1]}"
+            img_path = os.path.join(img_dir, img_name)
+            response = requests.get(img_url)
+            if response.status_code == 200:
+                with open(img_path, "wb") as fp:
+                    fp.write(response.content)
+                save_cnt += 1
+            else:
+                hints.append(f"{img_name}:{img_url} failed.")
+            time.sleep(0.3)
+    hints.append(f"{save_cnt:4d}/{total_cnt:4d} images saved.")
+    return HttpResponse("\n".join(hints))
+
+
+def writeDB_fishbaike(request):
+    """
+    导入鱼百科数据到数据库，数据文件在model/data/fish/baike下，文件名以fish_infos开头的json文件
+    """
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    baike_dir = os.path.join(BASE_DIR, "model/data/fish/baike")
+    data_paths: list[str] = []
+    FishBaike.objects.all().delete()
+    for file in os.listdir(baike_dir):
+        file = os.path.basename(file)
+        if file.endswith(".json") and file.startswith("fish_infos"):
+            data_paths.append(os.path.join(baike_dir, file))
+    for data_path in data_paths:
+        with open(data_path, "r", encoding="utf-8") as rfp:
+            data: dict[str:dict] = json.load(rfp)
+            for name, info in data.items():
+                FishBaike.objects.create(
+                    name=name,
+                    alias=info["alias"],
+                    distribution=info["distribution"],
+                    food=info["food"],
+                    appearance=info["appearance"],
+                    brief_intro=info["brief-intro"],
+                )
+    return HttpResponse("success")

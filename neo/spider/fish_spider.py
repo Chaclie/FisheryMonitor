@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
-from config import get_edge_driver
+from .config import get_edge_driver
 
 data_dir = "fish-data"
 img_dir = os.path.join(data_dir, "pics")

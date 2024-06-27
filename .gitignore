@@ -6,4 +6,5 @@
 /model/water/__pycache__/
 /neo/__pycache__/
 /neo/migrations/__pycache__/
+/neo/spider/__pycache__/
 /fishenv/
