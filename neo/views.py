@@ -278,7 +278,7 @@ def table(request):
 
 def map(request):
     data=get_map_info(request)
-    return render(request,'map.html',{"data":data})
+    return render(request,'map.html',{"datas":data})
     
 
 def get_data(request):
