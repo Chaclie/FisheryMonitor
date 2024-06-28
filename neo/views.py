@@ -21,8 +21,10 @@ from .spider.weather_spider import get_city_infos, get_weather_infos
 from datetime import datetime
 from model.water.datatransfer import num2date, date2num
 
+
 def case404(request):
     return render(request, "404.html")
+
 
 # Create your views here.
 def Index(request):
@@ -71,9 +73,11 @@ def MainInfo(request):
         lines = f.readlines()
         for line in lines:
             uid = int(line)
-    
+
     user = User.objects.get(id=uid)
-    return render(request, "MainInfo.html", {"data": data, "permission": user.permission})
+    return render(
+        request, "MainInfo.html", {"data": data, "permission": user.permission}
+    )
 
 
 def Underwater(request):
@@ -277,9 +281,9 @@ def table(request):
 
 
 def map(request):
-    data=get_map_info(request)
-    return render(request,'map.html',{"data":data})
-    
+    data = get_map_info(request)
+    return render(request, "map.html", {"data": data})
+
 
 def get_data(request):
     users = list(User.objects.all().values())  # 获取所有用户数据，并转换为字典列表
@@ -582,17 +586,17 @@ def get_water_info(request):
 # 地图数据
 def get_map_info(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.join(BASE_DIR,"model/data/water/processed/map")
-    data = pd.read_csv(os.path.join(path,'全国.csv'),index_col=0)
+    path = os.path.join(BASE_DIR, "model/data/water/processed/map")
+    data = pd.read_csv(os.path.join(path, "全国.csv"), index_col=0)
 
-    Province=data['Province']
-    Class=data['Class']
-    lists=[list(a)for a in zip(Province,Class)]
-    keys=['name','value']
-    list_json=[dict(zip(keys,item)) for item in lists]
-    str_json=json.dumps(list_json,indent=2,ensure_ascii=False)
+    Province = data["Province"]
+    Class = data["Class"]
+    lists = [list(a) for a in zip(Province, Class)]
+    keys = ["name", "value"]
+    list_json = [dict(zip(keys, item)) for item in lists]
+    str_json = json.dumps(list_json, indent=2, ensure_ascii=False)
     return str_json
-    
+
 
 def water_predict(request):
     if request.method == "GET":
@@ -694,6 +698,7 @@ def writ3eDB(request):
         )
     return HttpResponse("success")
 
+
 def water_exportdata(request: HttpRequest):
     waterinfos = WaterInfo.objects.all()
     waterdata = {}
@@ -712,11 +717,12 @@ def water_exportdata(request: HttpRequest):
             "Zonglin": waterinfo.Zonglin,
             "Zongdan": waterinfo.Zongdan,
         }
-    
+
     json_data = json.dumps(waterdata, indent=2, ensure_ascii=False)
     response = HttpResponse(json_data, content_type="application/json")
     response["Content-Disposition"] = 'attachment; filename="exportwater.json"'
     return response
+
 
 def water_add(request):
     if request.method == "GET":
@@ -728,7 +734,7 @@ def water_add(request):
         date_str = request.POST.get("date1")
         if date_str == "":
             now = datetime.now()
-            date_str = now.strftime('%Y-%m-%d')
+            date_str = now.strftime("%Y-%m-%d")
 
         print("----------------------")
         print(date_str)
@@ -779,7 +785,7 @@ def water_add(request):
         with open("./information/water_res", "w", encoding="utf-8") as f:
             for i in water_error:
                 f.write(str(i) + "\n")
-        
+
         WaterInfo.objects.create(
             Date=date2num(date_str),
             temp=temp,
@@ -792,7 +798,6 @@ def water_add(request):
             Zonglin=zonglin,
             Zongdan=zongdan,
         )
-
 
         return redirect("http://127.0.0.1:8000/system/MainInfo.html")
 
@@ -1185,7 +1190,8 @@ def weather_weekreport(request: HttpRequest):
     if target_id is not None:
         target_id = int(target_id) - 1
         weather_hours = weather_hours[target_id]
-        print(weather_hours)
+    else:
+        weather_hours = None
     return render(
         request,
         "weather_detail.html",
