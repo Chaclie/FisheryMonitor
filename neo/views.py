@@ -1067,7 +1067,27 @@ def weather_weekreport(request: HttpRequest):
 
 
 def weather_changeloc(request: HttpRequest):
-    pass
+    if request.method == "GET":
+        all_citys = weather_get_all_citys()
+        cur_prov, cur_city = weather_get_cur_loc()
+        return render(
+            request,
+            "weather_changeloc.html",
+            {
+                "cur_prov": cur_prov,
+                "cur_city": cur_city,
+                "prov_city_dict": all_citys,
+            },
+        )
+    else:
+        new_loc = request.POST.get("city")
+        new_prov, new_city = new_loc.split("-")
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        weather_data_dir = os.path.join(BASE_DIR, "model/data/weather")
+        current_city_path = os.path.join(weather_data_dir, "current_city.json")
+        with open(current_city_path, "w", encoding="utf-8") as wfp:
+            json.dump({"province": new_prov, "city": new_city}, wfp, ensure_ascii=False)
+        return redirect("http://localhost:8000/system/AIcenter.html")
 
 
 def weather_fresh(request: HttpRequest):
