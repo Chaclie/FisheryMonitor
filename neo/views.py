@@ -428,78 +428,166 @@ def fish_predict(request):
 #     Zongdan:总氮(暂不用)
 # '''
 def get_water_statistics(request):
+
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/water/processed")
     data = pd.read_csv(os.path.join(path, "water_cleaned.csv"), index_col=0)
-    # 获取统计图信息
-    FormData = {}
-    for tag in ["Day", "Week", "Month", "All"]:
-        temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
+    all_items = WaterInfo.objects.order_by('id')
+    all_items = all_items[::-1]
 
-        step = 0
+    if len(all_items) < 1000:
+        # 获取统计图信息
+        FormData = {}
+        for tag in ["Day", "Week", "Month", "All"]:
+            temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
 
-        if tag == "All":
-            step = 300
-        if tag == "Month":
-            step = 140
-        if tag == "Week":
-            step = 70
-        if tag == "Day":
-            step = 30
+            step = 0
 
-        for i in range(7):
-            temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
-            pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
-            Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
-            Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
-            Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
-            Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
+            if tag == "All":
+                step = 300
+            if tag == "Month":
+                step = 140
+            if tag == "Week":
+                step = 70
+            if tag == "Day":
+                step = 30
 
-        if tag == "Day":
-            Day = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Day
-        if tag == "Week":
-            Week = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Week
-        if tag == "Month":
-            Month = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Month
-        if tag == "All":
-            All = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = All
+            for i in range(7):
+                temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
+                pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
+                Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
+                Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
+                Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
+                Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
 
-    # 获取表格数据
-    AvgData = {}
-    for tag in ["temp", "pH", "Ox", "Dao", "Zhuodu", "Yandu"]:
-        AvgData[tag] = round(data[tag].mean(), 3)
+            if tag == "Day":
+                Day = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Day
+            if tag == "Week":
+                Week = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Week
+            if tag == "Month":
+                Month = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Month
+            if tag == "All":
+                All = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = All
+
+        # 获取表格数据
+        AvgData = {}
+        for tag in ["temp", "pH", "Ox", "Dao", "Zhuodu", "Yandu"]:
+            AvgData[tag] = round(data[tag].mean(), 3)
+    
+    else:
+        # 获取统计图信息
+        all_items
+        FormData = {}
+        for tag in ["Day", "Week", "Month", "All"]:
+            temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
+
+            step = 0
+
+            if tag == "All":
+                step = 120
+            if tag == "Month":
+                step = 30
+            if tag == "Week":
+                step = 7
+            if tag == "Day":
+                step = 1
+
+            for i in range(7):
+                temp.append(all_items[i*step].temp)
+                pH.append(all_items[i*step].pH)
+                Ox.append(all_items[i*step].Ox)
+                Dao.append(all_items[i*step].Dao)
+                Zhuodu.append(all_items[i*step].Zhuodu)
+                Yandu.append(all_items[i*step].Yandu)
+
+            temp = temp[::-1]
+            pH = pH[::-1]
+            Ox = Ox[::-1]
+            Dao = Dao[::-1]
+            Zhuodu = Zhuodu[::-1]
+            Yandu = Yandu[::-1]
+
+            if tag == "Day":
+                Day = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Day
+            if tag == "Week":
+                Week = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Week
+            if tag == "Month":
+                Month = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Month
+            if tag == "All":
+                All = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = All
+
+        # 获取表格数据
+        AvgData = {}
+        AvgData["temp"] = all_items[0].temp
+        AvgData["pH"] = all_items[0].pH
+        AvgData["Ox"] = all_items[0].Ox
+        AvgData["Dao"] = all_items[0].Dao
+        AvgData["Zhuodu"] = all_items[0].Zhuodu
+        AvgData["Yandu"] = all_items[0].Yandu
 
     return JsonResponse({"FormData": FormData, "AvgData": AvgData})
 
@@ -508,70 +596,147 @@ def get_water_info(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(BASE_DIR, "model/data/water/processed")
     data = pd.read_csv(os.path.join(path, "water_cleaned.csv"), index_col=0)
+    all_items = WaterInfo.objects.order_by('id')
+    all_items = all_items[::-1]
 
-    FormData = {}
-    for tag in ["Day", "Week", "Month", "All"]:
-        temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
+    if len(all_items)<1000:
+        # 获取统计图信息
+        FormData = {}
+        for tag in ["Day", "Week", "Month", "All"]:
+            temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
 
-        step = 0
+            step = 0
 
-        if tag == "All":
-            step = 300
-        if tag == "Month":
-            step = 140
-        if tag == "Week":
-            step = 70
-        if tag == "Day":
-            step = 30
+            if tag == "All":
+                step = 300
+            if tag == "Month":
+                step = 140
+            if tag == "Week":
+                step = 70
+            if tag == "Day":
+                step = 30
 
-        for i in range(7):
-            temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
-            pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
-            Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
-            Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
-            Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
-            Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
+            for i in range(7):
+                temp.append(round(data["temp"].head((i + 1) * step).mean(), 3))
+                pH.append(round(data["pH"].head((i + 1) * step).mean(), 3))
+                Ox.append(round(data["Ox"].head((i + 1) * step).mean(), 3))
+                Dao.append(round(data["Dao"].head((i + 1) * step).mean(), 3))
+                Zhuodu.append(round(data["Zhuodu"].head((i + 1) * step).mean(), 3))
+                Yandu.append(round(data["Yandu"].head((i + 1) * step).mean(), 3))
 
-        if tag == "Day":
-            Day = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Day
-        if tag == "Week":
-            Week = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Week
-        if tag == "Month":
-            Month = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = Month
-        if tag == "All":
-            All = {
-                "temp": temp,
-                "pH": pH,
-                "Ox": Ox,
-                "Dao": Dao,
-                "Zhuodu": Zhuodu,
-                "Yandu": Yandu,
-            }
-            FormData[tag] = All
+            if tag == "Day":
+                Day = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Day
+            if tag == "Week":
+                Week = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Week
+            if tag == "Month":
+                Month = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Month
+            if tag == "All":
+                All = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = All
+    else:
+        # 获取统计图信息
+        all_items
+        FormData = {}
+        for tag in ["Day", "Week", "Month", "All"]:
+            temp, pH, Ox, Dao, Zhuodu, Yandu = [], [], [], [], [], []
+
+            step = 0
+
+            if tag == "All":
+                step = 120
+            if tag == "Month":
+                step = 30
+            if tag == "Week":
+                step = 7
+            if tag == "Day":
+                step = 1
+
+            for i in range(7):
+                temp.append(all_items[i*step].temp)
+                pH.append(all_items[i*step].pH)
+                Ox.append(all_items[i*step].Ox)
+                Dao.append(all_items[i*step].Dao)
+                Zhuodu.append(all_items[i*step].Zhuodu)
+                Yandu.append(all_items[i*step].Yandu)
+
+            temp = temp[::-1]
+            pH = pH[::-1]
+            Ox = Ox[::-1]
+            Dao = Dao[::-1]
+            Zhuodu = Zhuodu[::-1]
+            Yandu = Yandu[::-1]
+
+            if tag == "Day":
+                Day = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Day
+            if tag == "Week":
+                Week = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Week
+            if tag == "Month":
+                Month = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = Month
+            if tag == "All":
+                All = {
+                    "temp": temp,
+                    "pH": pH,
+                    "Ox": Ox,
+                    "Dao": Dao,
+                    "Zhuodu": Zhuodu,
+                    "Yandu": Yandu,
+                }
+                FormData[tag] = All
 
     # 获取表格数据
     data = []
@@ -620,7 +785,7 @@ def water_predict(request):
         water_data.append(0)
 
         gaomeng = request.POST.get("gaomeng1")
-        gaomeng = float(gaomeng) if gaomeng != "" else 0
+        gaomeng = float(gaomeng) if gaomeng != "" else 0.1
         water_data.append(gaomeng)
 
         andan = request.POST.get("andan1")
@@ -755,7 +920,7 @@ def water_add(request):
         water_data.append(0)
 
         gaomeng = request.POST.get("gaomeng1")
-        gaomeng = float(gaomeng) if gaomeng != "" else 0
+        gaomeng = float(gaomeng) if gaomeng != "" else 0.1
         water_data.append(gaomeng)
 
         andan = request.POST.get("andan1")
