@@ -277,8 +277,9 @@ def table(request):
 
 
 def map(request):
-    return render(request, "map.html")
-
+    data=get_map_info(request)
+    return render(request,'map.html',{"data":data})
+    
 
 def get_data(request):
     users = list(User.objects.all().values())  # 获取所有用户数据，并转换为字典列表
@@ -577,6 +578,21 @@ def get_water_info(request):
 
     return JsonResponse(data, safe=False)
 
+
+# 地图数据
+def get_map_info(request):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(BASE_DIR,"model/data/water/processed/map")
+    data = pd.read_csv(os.path.join(path,'全国.csv'),index_col=0)
+
+    Province=data['Province']
+    Class=data['Class']
+    lists=[list(a)for a in zip(Province,Class)]
+    keys=['name','value']
+    list_json=[dict(zip(keys,item)) for item in lists]
+    str_json=json.dumps(list_json,indent=2,ensure_ascii=False)
+    return str_json
+    
 
 def water_predict(request):
     if request.method == "GET":

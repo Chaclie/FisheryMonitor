@@ -59,6 +59,9 @@ urlpatterns = [
     path("water/predict", water_predict),
     path("water/water_export", water_exportdata),
     path("water/add", water_add),
+    path('water/get_map_info',get_map_info),
+    
+
     # 视频+图像
     path("pic/upload_video", views.upload_video),
     path("pic/switch_video", views.switch_video),
