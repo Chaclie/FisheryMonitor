@@ -19,7 +19,7 @@ import requests
 from .spider.fish_spider import get_fish_infos
 from .spider.weather_spider import get_city_infos, get_weather_infos
 from datetime import datetime
-
+from model.water.datatransfer import num2date, date2num
 
 # Create your views here.
 def Index(request):
@@ -603,7 +603,6 @@ def water_predict(request):
         zongdan = float(zongdan) if zongdan != "" else 0
         water_data.append(zongdan)
 
-        water_show = True
         water_error, count = premanage(water_data)
         res, water_predict = model_predict(water_error, count)
 
@@ -626,6 +625,9 @@ def writ2eDB(request):
     WaterInfo.objects.all().delete()
     for i in range(len(data)):
         row = data.iloc[i]
+        # print("--------------------")
+        # print(row["Date"])
+        # print(type(row["Date"]))
         WaterInfo.objects.create(
             Date=row["Date"],
             temp=row["temp"],
@@ -663,6 +665,108 @@ def writ3eDB(request):
             Zongdan=row["Zongdan"],
         )
     return HttpResponse("success")
+
+def water_exportdata(request: HttpRequest):
+    waterinfos = WaterInfo.objects.all()
+    waterdata = {}
+    count = 0
+    for waterinfo in waterinfos:
+        count += 1
+        waterdata[count] = {
+            "Date": num2date(waterinfo.Date),
+            "temp": waterinfo.temp,
+            "pH": waterinfo.pH,
+            "Ox": waterinfo.Ox,
+            "Dao": waterinfo.Dao,
+            "Zhuodu": waterinfo.Zhuodu,
+            "Yandu": waterinfo.Yandu,
+            "Andan": waterinfo.Andan,
+            "Zonglin": waterinfo.Zonglin,
+            "Zongdan": waterinfo.Zongdan,
+        }
+    
+    json_data = json.dumps(waterdata, indent=2, ensure_ascii=False)
+    response = HttpResponse(json_data, content_type="application/json")
+    response["Content-Disposition"] = 'attachment; filename="exportwater.json"'
+    return response
+
+def water_add(request):
+    if request.method == "GET":
+        return render(request, "water_add.html")
+    else:
+
+        water_data = []
+
+        date_str = request.POST.get("date1")
+        if date_str == "":
+            now = datetime.now()
+            date_str = now.strftime('%Y-%m-%d')
+
+        print("----------------------")
+        print(date_str)
+
+        temp = request.POST.get("temperature1")
+        temp = float(temp) if temp != "" else 10
+        water_data.append(temp)
+
+        PH = request.POST.get("PH1")
+        PH = float(PH) if PH != "" else 7
+        water_data.append(PH)
+
+        Ox = request.POST.get("Ox1")
+        Ox = float(Ox) if Ox != "" else 10
+        water_data.append(Ox)
+
+        water_data.append(0)
+        water_data.append(0)
+
+        gaomeng = request.POST.get("gaomeng1")
+        gaomeng = float(gaomeng) if gaomeng != "" else 0
+        water_data.append(gaomeng)
+
+        andan = request.POST.get("andan1")
+        andan = float(andan) if andan != "" else 0
+        water_data.append(andan)
+
+        zonglin = request.POST.get("zonglin1")
+        zonglin = float(zonglin) if zonglin != "" else 0
+        water_data.append(zonglin)
+
+        zongdan = request.POST.get("zongdan1")
+        zongdan = float(zongdan) if zongdan != "" else 0
+        water_data.append(zongdan)
+
+        dao = request.POST.get("Dao1")
+        dao = float(dao) if dao != "" else 500
+
+        zhuodu = request.POST.get("Zhuodu1")
+        zhuodu = float(zhuodu) if zhuodu != "" else 3.3
+
+        water_error, count = premanage(water_data)
+        res, water_predict = model_predict(water_error, count)
+
+        with open("./information/water_preres", "w", encoding="utf-8") as f:
+            f.write(water_predict)
+
+        with open("./information/water_res", "w", encoding="utf-8") as f:
+            for i in water_error:
+                f.write(str(i) + "\n")
+        
+        WaterInfo.objects.create(
+            Date=date2num(date_str),
+            temp=temp,
+            pH=PH,
+            Ox=Ox,
+            Dao=dao,
+            Zhuodu=zhuodu,
+            Yandu=gaomeng,
+            Andan=andan,
+            Zonglin=zonglin,
+            Zongdan=zongdan,
+        )
+
+
+        return redirect("http://127.0.0.1:8000/system/MainInfo.html")
 
 
 # 从这里开始是视频和图像处理：
