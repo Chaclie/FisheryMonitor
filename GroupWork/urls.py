@@ -76,4 +76,5 @@ urlpatterns = [
     path("weather/weekreport", weather_weekreport),
     path("weather/changeloc", weather_changeloc),
     path("weather/fresh", weather_fresh),
+    path("404", case404),
 ]

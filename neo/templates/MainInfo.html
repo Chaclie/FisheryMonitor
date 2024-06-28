@@ -160,7 +160,7 @@
 
                         <div class="layui-col-md8">
                             <div class="layui-card">
-                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>水质信息展示</div>
+                                <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>水质信息展示</div>         
                                 <div class="layui-card-body">
                                     <div class="welcome-module">
                                         <div class="app">
@@ -284,48 +284,62 @@
                 </div>
 
                 <div class="layui-col-md4">
+                {% if permission > 1%}
+                    {% comment %} 数据处理与获取 {% endcomment %}
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-bullhorn icon icon-tip"></i>数据处理与获取</div>
+                        <div class="layui-card-body">
+                            <div>
+                                <a href="http://127.0.0.1:8000/water/add"><button type="button"
+                                        class="layui-btn layui-btn-normal">数据添加</button></a> 
+                                <a href="http://127.0.0.1:8000/water/water_export" download><button
+                                        type="button" class="layui-btn layui-btn-normal">数据导出</button></a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                     {% comment %} 系统公告 {% endcomment %}
                     <div class="layui-card">
                         <div class="layui-card-header"><i class="fa fa-bullhorn icon icon-tip"></i>系统公告</div>
                         <div class="layui-card-body layui-text">
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月鱼群健康报告</div>
-                                <div class="layuimini-notice-extra">2019-07-11 23:06</div>
+                                <div class="layuimini-notice-extra">2024-07-11 23:06</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
                             </div>
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月水域环境报告</div>
-                                <div class="layuimini-notice-extra">2019-07-11 12:57</div>
+                                <div class="layuimini-notice-extra">2024-07-11 12:57</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
                             </div>
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月设备运行报告</div>
-                                <div class="layuimini-notice-extra">2019-07-05 14:28</div>
+                                <div class="layuimini-notice-extra">2024-07-05 14:28</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
                             </div>
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月气象变化报告</div>
-                                <div class="layuimini-notice-extra">2019-07-04 11:02</div>
+                                <div class="layuimini-notice-extra">2024-07-04 11:02</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
                             </div>
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月网站运维报告</div>
-                                <div class="layuimini-notice-extra">2019-06-17 11:55</div>
+                                <div class="layuimini-notice-extra">2024-06-17 11:55</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
                             </div>
                             <div class="layuimini-notice">
                                 <div class="layuimini-notice-title">5月用户反馈报告</div>
-                                <div class="layuimini-notice-extra">2019-06-13 14:53</div>
+                                <div class="layuimini-notice-extra">2024-06-13 14:53</div>
                                 <div class="layuimini-notice-content layui-hide">
                                     todo(养殖用户提交，管理用户审批)
                                 </div>
@@ -747,7 +761,7 @@ window.onresize = function () {
                     success: function (layero) {
                         var btn = layero.find('.layui-layer-btn');
                         btn.find('.layui-layer-btn0').attr({
-                            href: 'https://gitee.com/zhongshaofa/layuimini',
+                            href: 'http://127.0.0.1:8000/404',
                             target: '_blank'
                         });
                     }

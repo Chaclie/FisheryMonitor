@@ -21,6 +21,9 @@ from .spider.weather_spider import get_city_infos, get_weather_infos
 from datetime import datetime
 from model.water.datatransfer import num2date, date2num
 
+def case404(request):
+    return render(request, "404.html")
+
 # Create your views here.
 def Index(request):
 
@@ -42,6 +45,10 @@ def system(request):
         return redirect("/")
     user = User.objects.get(id=uid)
     dic = {0: "普通用户", 1: "批发商", 2: "养殖户", 3: "管理员", 4: "高级管理员"}
+
+    with open("./information/per", "w", encoding="utf-8") as f:
+        f.write(str(uid))
+
     return render(
         request,
         "system.html",
@@ -59,8 +66,14 @@ def system(request):
 def MainInfo(request):
     res = get_water_statistics(request)
     data = json.loads(res.content)
-    # print(data[0])
-    return render(request, "MainInfo.html", {"data": data})
+
+    with open("./information/per", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            uid = int(line)
+    
+    user = User.objects.get(id=uid)
+    return render(request, "MainInfo.html", {"data": data, "permission": user.permission})
 
 
 def Underwater(request):
@@ -116,7 +129,6 @@ def AIcenter(request: HttpRequest):
     # ---水质---
     water_preres = ""
     with open("./information/water_preres", "r", encoding="utf-8") as f:
-        print(1)
         lines = f.readlines()
         for line in lines:
             water_preres = int(line)
