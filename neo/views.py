@@ -17,6 +17,8 @@ from django.core.files.storage import FileSystemStorage
 from tqdm import tqdm
 import requests
 from .spider.fish_spider import get_fish_infos
+from .spider.weather_spider import get_city_infos, get_weather_infos
+from datetime import datetime
 
 
 # Create your views here.
@@ -81,7 +83,37 @@ def Datacenter(request):
     return render(request, "datacenter.html", data)
 
 
-def AIcenter(request):
+def AIcenter(request: HttpRequest):
+    # ---天气---
+    cur_province, cur_city, weather_days, weather_hours = (
+        weather_get_cur_loc_weather_data()
+    )
+    cur_date = datetime.today().strftime("%m/%d")
+    cur_hour = datetime.now().time().strftime("%H:%M")
+    weather_day, weather_hour = {}, {}
+    for i in range(len(weather_days)):
+        if cur_date == weather_days[i]["date"]:
+            weather_day = weather_days[i]
+            les, mor = -1, -1
+            for j in range(len(weather_hours[i])):
+                if weather_hours[i][j]["hour"] <= cur_hour:
+                    if (
+                        les != -1
+                        and weather_hours[i][les]["hour"] <= weather_hours[i][j]["hour"]
+                    ):
+                        les = j
+                if weather_hours[i][j]["hour"] >= cur_hour:
+                    if (
+                        mor != -1
+                        and weather_hours[i][mor]["hour"] >= weather_hours[i][j]["hour"]
+                    ):
+                        mor = j
+            if mor != -1:
+                weather_hour = weather_hours[i][mor]
+            else:
+                weather_hour = weather_hours[i][les]
+            break
+    # ---水质---
     water_preres = ""
     with open("./information/water_preres", "r", encoding="utf-8") as f:
         print(1)
@@ -111,12 +143,14 @@ def AIcenter(request):
                 "water_preres": water_preres,
                 "water_res": water_res,
                 "water_predict_list": water_predict_list,
+                "curloc": {"province": cur_province, "city": cur_city},
+                "weather_day": weather_day,
+                "weather_hour": weather_hour,
             },
         )
     show = int(request.GET.get("show")[0])
     w = str(round(float(request.GET.get("w")), 2)) + " kg"
     l = str(round(float(request.GET.get("l")), 2)) + " cm"
-    print(show, w, l)
     return render(
         request,
         "AIcenter.html",
@@ -126,6 +160,9 @@ def AIcenter(request):
             "l": l,
             "water_preres": water_preres,
             "water_res": water_res,
+            "curloc": {"province": cur_province, "city": cur_city},
+            "weather_day": weather_day,
+            "weather_hour": weather_hour,
         },
     )
 
@@ -938,3 +975,101 @@ def fishbaike_exportdata(request: HttpRequest):
     response = HttpResponse(json_data, content_type="application/json")
     response["Content-Disposition"] = 'attachment; filename="export.json"'
     return response
+
+
+#############################################
+# 天气更新
+#############################################
+def weather_get_all_citys() -> dict[str : list[str]]:
+    """{省份: [城市1, 城市2, ...]}"""
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    weather_data_dir = os.path.join(BASE_DIR, "model/data/weather")
+    weather_city_infos_path = os.path.join(weather_data_dir, "city_infos.json")
+    if not os.path.isfile(weather_city_infos_path):
+        # 不存在城市信息则爬取
+        city_infos = get_city_infos(weather_city_infos_path)
+    else:
+        with open(weather_city_infos_path, "r", encoding="utf-8") as rfp:
+            city_infos: dict[str : list[str]] = json.load(rfp)
+    return city_infos
+
+
+def weather_get_cur_loc() -> tuple[str, str]:
+    """当前省市"""
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    weather_data_dir = os.path.join(BASE_DIR, "model/data/weather")
+    current_city_path = os.path.join(weather_data_dir, "current_city.json")
+    cur_loc: dict[str:str] = {}  # 当前省市
+    if not os.path.isfile(current_city_path):
+        all_citys = weather_get_all_citys()
+        provs = list(all_citys.keys())
+        cur_loc = {
+            "province": provs[0],
+            "city": all_citys[provs[0]][0],
+        }
+        with open(current_city_path, "w", encoding="utf-8") as wfp:
+            json.dump(cur_loc, wfp, ensure_ascii=False)
+    else:
+        with open(current_city_path, "r", encoding="utf-8") as rfp:
+            cur_loc = json.load(rfp)
+    return cur_loc["province"], cur_loc["city"]
+
+
+def weather_get_cur_loc_weather_data(
+    force_up_to_date: bool = False,
+) -> tuple[str, str, list[dict], list[list[dict]]]:
+    """
+    当前省市及其未来七天每日天气与每日每3h天气
+    - force_up_to_date为True表示强制爬取
+    """
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    weather_data_dir = os.path.join(BASE_DIR, "model/data/weather")
+    cur_province, cur_city = weather_get_cur_loc()
+    weather_file = os.path.join(
+        weather_data_dir, "weather-{}-{}.json".format(cur_province, cur_city)
+    )
+    use_spider = force_up_to_date
+    weather_days: list[dict] = []
+    weather_hours: list[list[dict]] = []
+    if not use_spider and os.path.isfile(weather_file):
+        with open(weather_file, "r", encoding="utf-8") as rfp:
+            weather_infos = json.load(rfp)
+        weather_days, weather_hours = weather_infos["day"], weather_infos["hour"]
+        cur_date = datetime.today().strftime("%m/%d")
+        if weather_days[-1]["date"] < cur_date:
+            use_spider = True
+    else:
+        use_spider = True
+    if use_spider:
+        weather_days, weather_hours = get_weather_infos(
+            cur_province, cur_city, weather_file
+        )
+    return cur_province, cur_city, weather_days, weather_hours
+
+
+def weather_weekreport(request: HttpRequest):
+    cur_prov, cur_city, weather_days, weather_hours = weather_get_cur_loc_weather_data()
+    target_id = request.GET.get("id")
+    if target_id is not None:
+        target_id = int(target_id) - 1
+        weather_hours = weather_hours[target_id]
+        print(weather_hours)
+    return render(
+        request,
+        "weather_detail.html",
+        {
+            "cur_prov": cur_prov,
+            "cur_city": cur_city,
+            "weather_days": weather_days,
+            "weather_hours": weather_hours,
+        },
+    )
+
+
+def weather_changeloc(request: HttpRequest):
+    pass
+
+
+def weather_fresh(request: HttpRequest):
+    weather_get_cur_loc_weather_data(True)
+    return redirect("http://127.0.0.1:8000/system/AIcenter.html")

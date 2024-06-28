@@ -403,9 +403,83 @@
                             </table>
                         </div>
                     </div>
-
                     <div class="layui-card">
                         <div class="layui-card-header"><i class="fa fa-fire icon"></i>气象数据</div>
+                        <div class="layui-card-body layui-text">
+                            <div>
+                                <p>当前位置：{{curloc.province}} - {{curloc.city}}</p>
+                                <a href="http://127.0.0.1:8000/weather/changeloc"><button type="button"
+                                        class="layui-btn layui-btn-normal">修改定位</button></a>
+                                <a href="http://127.0.0.1:8000/weather/weekreport"><button type="button"
+                                        class="layui-btn layui-btn-normal">天气周报</button></a>
+                                <a href="http://127.0.0.1:8000/weather/fresh"><button type="button"
+                                        class="layui-btn layui-btn-normal">刷新天气</button></a>
+                            </div>
+                            <table class="layui-table">
+                                <colgroup>
+                                    <col width="100">
+                                    <col>
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td>云雨</td>
+                                        <td>
+                                            {{weather_day.weather_beg}} 转 {{weather_day.weather_end}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>温度</td>
+                                        <td>
+                                            最低{{weather_day.temperature_min}}，最高{{weather_day.temperature_max}}，当前{{weather_hour.temperature}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>风向</td>
+                                        <td>
+                                            {{weather_day.wind_direc_beg}} 转
+                                            {{weather_day.wind_direc_end}}，当前{{weather_hour.wind_direc}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>风速</td>
+                                        <td>
+                                            {{weather_day.wind_level_beg}} 转
+                                            {{weather_day.wind_level_end}}，当前{{weather_hour.wind_veloc}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>当前气压</td>
+                                        <td>
+                                            {{weather_hour.pressure}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>当前湿度</td>
+                                        <td>
+                                            {{weather_hour.humidity}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>当前云量</td>
+                                        <td>
+                                            {{weather_hour.cloud}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>当前降水</td>
+                                        <td>
+                                            {{weather_hour.rain}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-fire icon"></i>水质预警</div>
                         <div class="layui-card-body layui-text">
                             <table class="layui-table">
                                 <colgroup>
@@ -429,42 +503,6 @@
                                             {% endif %}
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>温度</td>
-                                        <td>
-                                            0-7摄氏度
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>风</td>
-                                        <td>东北风5级</td>
-                                    </tr>
-                                    <tr>
-                                        <td>湿度</td>
-                                        <td>96%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>空气质量</td>
-                                        <td>
-                                            78 良
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-
-                    <div class="layui-card">
-                        <div class="layui-card-header"><i class="fa fa-fire icon"></i>水质预警</div>
-                        <div class="layui-card-body layui-text">
-                            <table class="layui-table">
-                                <colgroup>
-                                    <col width="100">
-                                    <col>
-                                </colgroup>
-                                <tbody>
                                     {% for key,value in water_res.items %}
                                     <tr>
                                         <td>{{key}}</td>

@@ -70,4 +70,8 @@ urlpatterns = [
     path("fishbaike/export", fishbaike_exportdata),
     path("fishbaike/search", fishbaike_search),
     path("fishbaike/showdetail", fishbaike_showdetail),
+    # 天气
+    path("weather/weekreport", weather_weekreport),
+    path("weather/changeloc", weather_changeloc),
+    path("weather/fresh", weather_fresh),
 ]
