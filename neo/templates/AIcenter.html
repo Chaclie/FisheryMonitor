@@ -328,8 +328,10 @@
                                     </div>
                                     <div class="layui-card-body">
                                         <div>
+                                            {% if permission > 1%}
                                             <a href="http://127.0.0.1:8000/fishbaike/add"><button type="button"
                                                     class="layui-btn layui-btn-normal">鱼类添加</button></a>
+                                            {% endif %}
                                             <a href="http://127.0.0.1:8000/fishbaike/writeDB"><button type="button"
                                                     class="layui-btn layui-btn-normal">数据刷新</button></a>
                                             <a href="http://127.0.0.1:8000/fishbaike/export" download><button

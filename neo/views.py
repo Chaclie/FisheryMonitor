@@ -102,6 +102,13 @@ def Datacenter(request):
 
 def AIcenter(request: HttpRequest):
     # ---天气---
+    with open("./information/per", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            uid = int(line)
+
+    user = User.objects.get(id=uid)
+
     cur_province, cur_city, weather_days, weather_hours = (
         weather_get_cur_loc_weather_data()
     )
@@ -162,6 +169,7 @@ def AIcenter(request: HttpRequest):
                 "curloc": {"province": cur_province, "city": cur_city},
                 "weather_day": weather_day,
                 "weather_hour": weather_hour,
+                "permission": user.permission,
             },
         )
     show = int(request.GET.get("show")[0])
@@ -179,6 +187,7 @@ def AIcenter(request: HttpRequest):
             "curloc": {"province": cur_province, "city": cur_city},
             "weather_day": weather_day,
             "weather_hour": weather_hour,
+            "permission": user.permission,
         },
     )
 
@@ -279,6 +288,11 @@ def backend(request):
 def table(request):
     return render(request, "table.html")
 
+def role_info(request):
+    return render(request, "role.html")
+
+def project_info(request):
+    return render(request, "project.html")
 
 def map(request):
     data = get_map_info(request)
@@ -1224,6 +1238,13 @@ def fishbaike_search(request: HttpRequest):
 
 
 def fishbaike_showdetail(request: HttpRequest):
+    with open("./information/per", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            uid = int(line)
+
+    user = User.objects.get(id=uid)
+
     if request.method == "GET":
         name = request.GET.get("name")
         print(name)
@@ -1256,6 +1277,7 @@ def fishbaike_showdetail(request: HttpRequest):
                     "appearance": fishbaike.appearance.split("\n"),
                     "brief_intro": fishbaike.brief_intro.split("\n"),
                     "images": images,
+                    "permission": user.permission,
                 }
             },
         )

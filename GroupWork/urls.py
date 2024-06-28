@@ -80,4 +80,15 @@ urlpatterns = [
     path("weather/changeloc", weather_changeloc),
     path("weather/fresh", weather_fresh),
     path("404", case404),
+
+    path("backend/MainInfo.html", views.MainInfo),
+    path("backend/Underwater.html", views.Underwater),
+    path("backend/datacenter.html", views.Datacenter),
+    path("backend/AIcenter.html", views.AIcenter),
+    path("backend/admincontrol.html", views.AdminControl),
+    path("backend/forget.html", views.forget),
+    path("backend/smart_QA.html", views.smart_qa),
+    path("backend/map.html", views.map),
+    path("backend/role.html", role_info),
+    path("backend/project.html", project_info),
 ]
