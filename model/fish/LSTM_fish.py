@@ -85,6 +85,14 @@ class LSTMModel():
         predictions = scaler.inverse_transform(np.abs(predictions.cpu().numpy()))
         return predictions[0]
 
+def generate_wave_numbers(start, end, num_points=8, amplitude=1, frequency=1):
+    if end - start > 15:
+        end = end - 15
+    linear_points = np.linspace(start, end, num_points + 2)
+    wave = amplitude * np.sin(np.linspace(0, frequency * np.pi, num_points + 2))
+    wave_points = linear_points + wave
+    return list(wave_points)
+
 if __name__ == '__main__':
     data = pd.read_csv(DATA_PATH, index_col=0)
     data = data[data['Latin_Name'] == 'Dorosoma cepedianum']

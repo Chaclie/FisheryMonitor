@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>layui</title>
@@ -7,6 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="../static/lib/layui-v2.6.3/css/layui.css" media="all">
     <link rel="stylesheet" href="../static/css/public.css" media="all">
+    <style>
+        .my-div {
+            width: 80%;
+            height: 500px;
+            margin: auto; /* Centers the div horizontally */
+        }
+    </style>
 </head>
 <body>
 <div class="layuimini-container">
@@ -44,8 +51,12 @@
     </div>
 </div>
 
+{% if w != None %}
+<div class="my-div" id="my-main"></div>
+{% endif %}
 <script src="../static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
-<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<!-- 引入 ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script>
     layui.use(['form', 'layedit', 'laydate'], function () {
         var form = layui.form
@@ -85,7 +96,92 @@
             "interest": 0
         })
     });
-</script>
 
+    window.onload = function () {
+        var chartDom = document.getElementById('my-main');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            title: {
+                text: '未来一段时间的预测信息'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {},
+            toolbox: {
+                show: true,
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    dataView: {readOnly: false},
+                    magicType: {type: ['line', 'bar']},
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: [1,2,3,4,5,6,7,8,9,10]
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                }
+            },
+            series: [
+                {
+                    name: '身长',
+                    type: 'line',
+                    data: {{ l }},
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: 'Max'},
+                            {type: 'min', name: 'Min'}
+                        ]
+                    },
+                    markLine: {
+                        data: [{type: 'average', name: 'Avg'}]
+                    }
+                },
+                {
+                    name: '体重',
+                    type: 'line',
+                    data: {{ w }},
+                    markPoint: {
+                        data: [{name: '周最低', value: -2, xAxis: 1, yAxis: -1.5}]
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: 'Avg'},
+                            [
+                                {
+                                    symbol: 'none',
+                                    x: '90%',
+                                    yAxis: 'max'
+                                },
+                                {
+                                    symbol: 'circle',
+                                    label: {
+                                        position: 'start',
+                                        formatter: 'Max'
+                                    },
+                                    type: 'max',
+                                    name: '最高点'
+                                }
+                            ]
+                        ]
+                    }
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+    };
+</script>
 </body>
 </html>

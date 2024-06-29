@@ -91,4 +91,7 @@ urlpatterns = [
     path("backend/map.html", views.map),
     path("backend/role.html", role_info),
     path("backend/project.html", project_info),
+
+    # smartQA
+    path("smartQA/ask", views.smartQA),
 ]

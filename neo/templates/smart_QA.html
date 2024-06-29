@@ -54,7 +54,7 @@
     // Icons made by Freepik from www.flaticon.com
     const BOT_IMG = "../static/images/taffy.svg";
     const PERSON_IMG = "../static/images/you.svg";
-    const BOT_NAME = "赛博小中医";
+    const BOT_NAME = "赛博小鱼人";
     const PERSON_NAME = "你";
 
     msgerForm.addEventListener("submit", event => {
@@ -91,12 +91,11 @@
       // Bot Response
       // 构造 AJAX 请求
       $.ajax({
-        url: "/get",  // 后端视图函数的URL路由，与urls.py中配置的路径一致
+        url: "http://127.0.0.1:8000/smartQA/ask?q="+rawText,  // 后端视图函数的URL路由，与urls.py中配置的路径一致
         method: "GET",
-        data: { msg: rawText },  // 将用户输入的消息作为查询参数发送给后端
         success: function (data) {
           // 在成功接收到后端响应后，将机器人的回复显示在聊天窗口中
-          const msgText = data.bot_response;
+          const msgText = data.answer;
           appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
         },
         error: function (xhr, status, error) {

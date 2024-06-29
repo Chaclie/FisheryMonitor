@@ -1,16 +1,17 @@
+from django.db.models import Avg
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.http import HttpResponseRedirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from GroupWork import settings
+from model.smartQA.QARobot import SmartQARobot
 from neo.models import User, FishInfo, WaterInfo, MapWaterInfo, FishBaike
-from model.fish.LSTM_fish import LSTMModel
+from model.fish.LSTM_fish import LSTMModel,generate_wave_numbers
 import re, json, os, time
 import pandas as pd
 import numpy as np
 from time import sleep
 from model.water.predict.predict import premanage, model_predict, water_predict_list
-
 # import model.YOLO.detect as YOLO
 
 from django.core.files.storage import FileSystemStorage
@@ -21,6 +22,11 @@ from .spider.weather_spider import get_city_infos, get_weather_infos
 from datetime import datetime
 from model.water.datatransfer import num2date, date2num
 
+def smartQA(request):
+    sqa = SmartQARobot()
+    question = request.GET.get("q")
+    answer = sqa.API(question)
+    return JsonResponse({"answer": answer})
 
 def case404(request):
     return render(request, "404.html")
@@ -173,15 +179,11 @@ def AIcenter(request: HttpRequest):
             },
         )
     show = int(request.GET.get("show")[0])
-    w = str(round(float(request.GET.get("w")), 2)) + " kg"
-    l = str(round(float(request.GET.get("l")), 2)) + " cm"
     return render(
         request,
         "AIcenter.html",
         {
             "show": show,
-            "w": w,
-            "l": l,
             "water_preres": water_preres,
             "water_res": water_res,
             "curloc": {"province": cur_province, "city": cur_city},
@@ -364,8 +366,6 @@ def get_top_info(request):
     path = os.path.join(BASE_DIR, "model/data/fish/processed")
     with open(os.path.join(path, "top_info.json"), "r") as f:
         data = json.load(f)
-    # print(type(data))
-    # print(data[0])
     return JsonResponse(data, safe=False)
 
 
@@ -396,6 +396,10 @@ def fish_predict(request):
         fish_name = request.POST.get("fish_name")
         duration = int(request.POST.get("duration"))
         fish_data = FishInfo.objects.filter(latin_name=fish_name)
+        # 当前的身长和体重
+        curr_length = fish_data.aggregate(avg_length=Avg("mean_length"))["avg_length"]
+        curr_weight = fish_data.aggregate(avg_weight=Avg("mean_weight"))["avg_weight"]
+
         data = pd.DataFrame(
             list(fish_data.values()),
             columns=[
@@ -423,9 +427,15 @@ def fish_predict(request):
                 BASE_DIR, "model/data/fish/processed/fish_final.csv"
             ),
         )
-        return redirect(
-            f"http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}"
-        )
+
+        weights = generate_wave_numbers(curr_weight, predictions[1])
+        lengths = generate_wave_numbers(curr_length, predictions[0])
+
+        return render(request, "fish_predict.html", {"w": weights, "l": lengths})
+
+        # return redirect(
+        #     f"http://127.0.0.1:8000/system/AIcenter.html?show=1&w={predictions[1]}&l={predictions[0]}&ws={weights}&ls={lengths}"
+        # )
 
 
 # 获取水质统计信息
@@ -1418,3 +1428,5 @@ def weather_changeloc(request: HttpRequest):
 def weather_fresh(request: HttpRequest):
     weather_get_cur_loc_weather_data(True)
     return redirect("http://127.0.0.1:8000/system/AIcenter.html")
+
+
