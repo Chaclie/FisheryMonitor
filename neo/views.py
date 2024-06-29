@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 from time import sleep
 from model.water.predict.predict import premanage, model_predict, water_predict_list
-# import model.YOLO.detect as YOLO
+import model.YOLO.detect as YOLO
 
 from django.core.files.storage import FileSystemStorage
 from tqdm import tqdm
@@ -1037,6 +1037,7 @@ def switch_video(request):
 def analysis_video(request):
     # type为鱼的英文名，可以根据字典映射到id
     type = YOLO.detect()
+    # type = "长吻雀鳝"
     # 打印来看已经可以正常输出Carcharodon_carcharias，但是返回不正常呢，大家测试的时候可以直接设置type等于巴拉巴拉来看看
     print(type)
     return render(request, "AIcenter.html", {"answer": {type}})
